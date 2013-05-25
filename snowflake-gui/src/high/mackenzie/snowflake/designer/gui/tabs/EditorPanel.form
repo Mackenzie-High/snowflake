@@ -1,0 +1,68 @@
+<?xml version="1.1" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Container class="javax.swing.JPopupMenu" name="editorTextboxPopupMenu">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="editorTextboxPopupMenu" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="//&#xa;// Create the &quot;Cut&quot; menu item.&#xa;final JMenuItem cut = new JMenuItem(new DefaultEditorKit.CutAction());&#xa;cut.setText(&quot;Cut&quot;);&#xa;editorTextboxPopupMenu.add(cut);&#xa;//&#xa;// Create the &quot;Copy&quot; menu item.&#xa;final JMenuItem copy = new JMenuItem(new DefaultEditorKit.CopyAction());&#xa;copy.setText(&quot;Copy&quot;);&#xa;editorTextboxPopupMenu.add(copy);&#xa;//&#xa;// Create the &quot;Paste&quot; menu item.&#xa;final JMenuItem paste = new JMenuItem(new DefaultEditorKit.PasteAction());&#xa;paste.setText(&quot;Paste&quot;);&#xa;editorTextboxPopupMenu.add(paste);&#xa;//&#xa;// Create the &quot;Select All&quot; menu item.&#xa;final JMenuItem selectAll = new JMenuItem(new SelectAllAction());&#xa;selectAll.setText(&quot;Select All&quot;);&#xa;editorTextboxPopupMenu.add(selectAll);"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+    </Container>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="name" type="java.lang.String" value="Form" noResource="true"/>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Component id="jScrollPane1" alignment="0" pref="400" max="32767" attributes="0"/>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Component id="jScrollPane1" alignment="0" pref="300" max="32767" attributes="0"/>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="jScrollPane1" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextArea" name="editorTextbox">
+          <Events>
+            <EventHandler event="caretUpdate" listener="javax.swing.event.CaretListener" parameters="javax.swing.event.CaretEvent" handler="editorTextboxCaretUpdate"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="editorTextbox.setMargin(new java.awt.Insets(10, 10, 10, 10));"/>
+            <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="EditorPanel_editorTextbox"/>
+          </AuxValues>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
