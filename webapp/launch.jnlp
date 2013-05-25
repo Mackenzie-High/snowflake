@@ -8,7 +8,7 @@
         <description kind="short">TODO</description>
     </information>
     <resources>
-        <jar href="SnowflakeGUI.jar" main="true"/>
+        <jar href="snowflake-gui.jar" main="true"/>
     </resources>
     <application-desc main-class="high.mackenzie.snowflake.designer.gui.SnowflakeIDEApp">
     </application-desc>
