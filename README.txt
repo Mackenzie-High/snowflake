@@ -1,3 +1,3 @@
-(Project Under Construction) 
+Snowflake lets you interactively create recursive-descent parsers.
 
-Snowflake is a Parsing Expression Grammar (PEG) library and graphical parser-generator. 
+Website: http://mackenzie-high.github.io/snowflake/
