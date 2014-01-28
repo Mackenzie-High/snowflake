@@ -1,0 +1,297 @@
+# Copyright 2013 Michael Mackenzie High
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# Author: Mackenzie High
+# Date: April 04, 2013
+# Description: This is the grammar of Snowflake grammars.
+
+%package "high.mackenzie.snowflake.parsergen";
+%parser "GrammarParser";
+
+%root root;
+
+####################################################################################################
+#                            Lexical Rules
+####################################################################################################
+
+# Lexical Symbols
+AND = '&';
+ANY_CHAR = 0C - 1000C;
+COLON = ':';
+COMMA = ',';
+CURLY_BRACKET_L = '{';
+CURLY_BRACKET_R = '}';
+DASH = '-';
+DIGIT = '0' - '9';
+DOLLAR = '$';
+DOUBLE_SLASH = "//";
+EQUALS = '=';
+EXPORT_PARSER = "%export-parser";
+EXPORT_VISITOR = "%export-visitor";
+FORWARD_SLASH = '/';
+HIDE = "%hide";
+LETTER_C = 'C';
+LOWER = 'a' - 'z';
+NAME_HEAD = [ 'A' - 'Z' 'a' - 'z' '$' '_' ];
+NAME_TAIL = NAME_TAIL_CHAR *;
+NAME_TAIL_CHAR = [ 'A' - 'Z' 'a' - 'z' '$' '_' '0' - '9'];
+NEWLINE = 10C;
+NON_NEWLINE = [ ^ 10C ];
+NON_QUOTE = [ ^ '"' ];
+NOT = '!';
+PACKAGE = "%package";
+PAREN_L = '(';
+PAREN_R = ')';
+PARSER = "%parser";
+PLUS = '+';
+POUND = '#';
+QUESTION = '?';
+QUOTE = '"';
+ROOT = "%root";
+SEMICOLON = ';';
+SINGLE_QUOTE = ''';
+SPACE = ' ';
+SQUARE_BRACKET_L = '[';
+SQUARE_BRACKET_R = ']';
+STAR = '*';
+TAB = 9C;
+TRACE = "%trace";
+UNDERSCORE = '_';
+UPPER = 'A' - 'Z';
+VISITOR = "%visitor";
+XOR = '^';
+
+# Whitespace
+WS = WS_ELEMENT *;
+WS_ELEMENT = WS_CHAR / comment;
+WS_CHAR = [ ' ' 10C  9C ];
+
+####################################################################################################
+#                          Non-Lexical Rules
+####################################################################################################
+
+# This is the root rule of the grammar.
+root = WS, entries, WS , END;
+
+    entries = entry *;
+
+    entry = directive / named_rule;
+
+# Directives
+directive = directive_root
+          / directive_hide
+          / directive_trace
+          / directive_package
+          / directive_parser
+          / directive_visitor
+          / directive_export_parser
+          / directive_export_visitor;
+
+# Directive %root
+directive_root = ROOT , WS , name , WS, SEMICOLON , WS;
+
+# Directive %hide
+directive_hide = HIDE , WS , SEMICOLON , WS;
+
+# Directive %trace
+directive_trace = TRACE , WS , digits , WS, SEMICOLON , WS;
+
+# Directive %package
+directive_package = PACKAGE , WS , string , WS, SEMICOLON , WS;
+
+# Directive %parser
+directive_parser = PARSER , WS , string , WS, SEMICOLON , WS;
+
+# Directive %visitor
+directive_visitor = VISITOR , WS , string , WS, SEMICOLON , WS;
+
+# Directive %export-parser
+directive_export_parser = EXPORT_PARSER , WS , string , WS , SEMICOLON , WS;
+
+# Directive %export-visitor
+directive_export_visitor = EXPORT_VISITOR , WS , string , WS , SEMICOLON , WS;
+
+# Named Rules
+named_rule = named_string_rule
+           / named_character_rule
+           / named_sequence_rule
+           / named_sequencedlr_rule
+           / named_choice_rule
+           / named_option_rule
+           / named_star_rule
+           / named_plus_rule
+           / named_repetition_rule
+           / named_and_rule
+           / named_not_rule;
+
+# Named Character Rule
+named_character_rule = assignee, WS, EQUALS, WS, class, WS, SEMICOLON , WS;
+
+# Named String Rule
+named_string_rule = assignee, WS, EQUALS, WS, string, WS, SEMICOLON , WS;
+
+# Named Sequence Rule
+named_sequence_rule = alias_rule / multi_element_rule;
+
+    alias_rule = assignee, WS, EQUALS, WS, name, WS, SEMICOLON , WS;
+
+    multi_element_rule = assignee, WS, EQUALS, WS, sequence, WS, SEMICOLON , WS;
+
+    sequence = sequence_head , sequence_tail;
+
+    sequence_head = item;
+
+    sequence_tail = sequence_tail_element +;
+
+    sequence_tail_element = WS, COMMA, WS, item;
+
+# Named Sequence-DLR Rule
+named_sequencedlr_rule = assignee , WS , EQUALS , WS , base , WS , COLON , WS , shared , WS , SEMICOLON , WS;
+
+    base = item;
+
+    shared = sequence / item;
+
+# Named Choice Rule
+named_choice_rule = assignee, WS, EQUALS, WS, choices, WS, SEMICOLON , WS;
+
+    choices = choice_head , choice_tail;
+
+    choice_head = item;
+
+    choice_tail = choice_tail_element +;
+
+    choice_tail_element = WS, FORWARD_SLASH, WS, item;
+
+# Named Option Rule
+named_option_rule = assignee, WS, EQUALS, WS, item, WS, QUESTION, WS, SEMICOLON , WS;
+
+# Named Star Rule
+named_star_rule = assignee, WS, EQUALS, WS, item, WS, STAR, WS, SEMICOLON , WS;
+
+# Named Plus Rule
+named_plus_rule = assignee, WS, EQUALS, WS, item, WS, PLUS, WS, SEMICOLON , WS;
+
+# Named Repetition Rule
+named_repetition_rule = assignee, WS, EQUALS, WS, item, WS, CURLY_BRACKET_L, WS, repetition_minimum, WS, COMMA, WS, repetition_maximum, WS, CURLY_BRACKET_R, WS, SEMICOLON , WS;
+
+    repetition_minimum = digits;
+
+    repetition_maximum = digits;
+
+    digits = DIGIT +;
+
+# Named AND-Predicate Rule
+named_and_rule = assignee, WS, EQUALS, WS, AND, WS, item, WS, SEMICOLON , WS;
+
+# Named NOT-Predicate Rule
+named_not_rule = assignee, WS, EQUALS, WS, NOT, WS, item, WS, SEMICOLON , WS;
+
+# Anonymous Rules
+anon_rule = anon_string_rule
+          / anon_character_rule
+          / anon_sequence_rule
+          / anon_sequencedlr_rule
+          / anon_choice_rule
+          / anon_option_rule
+          / anon_star_rule
+          / anon_plus_rule
+          / anon_repetition_rule
+          / anon_and_rule
+          / anon_not_rule;
+
+# Anonymous String Rule
+anon_string_rule = string , WS;
+
+# Anonymous Character Rule
+anon_character_rule = class , WS;
+
+# Anonymous Sequence Rule
+anon_sequence_rule = PAREN_L, WS, sequence, WS , PAREN_R , WS;
+
+# Named Sequence-DLR Rule
+anon_sequencedlr_rule = PAREN_L , WS , base , WS , COLON , WS , shared , WS , PAREN_R , WS;
+
+# Anonymous Choice Rule
+anon_choice_rule = PAREN_L, WS, choices, WS, PAREN_R , WS;
+
+# Anonymous Option Rule
+anon_option_rule = PAREN_L, WS, item, WS, QUESTION, WS, PAREN_R, WS;
+
+# Anonymous Star Rule
+anon_star_rule = PAREN_L, WS, item, WS, STAR , WS, PAREN_R, WS;
+
+# Anonymous Plus Rule
+anon_plus_rule = PAREN_L, WS, item, WS, PLUS , WS, PAREN_R, WS;
+
+# Anonymous Repetition Rule
+anon_repetition_rule = PAREN_L, WS, item, WS, CURLY_BRACKET_L, WS, repetition_minimum, WS, COMMA, WS, repetition_maximum, WS, CURLY_BRACKET_R, WS, PAREN_R, WS;
+
+# Anonymous AND-Rule
+anon_and_rule = PAREN_L, WS, AND, WS, item , WS, PAREN_R, WS;
+
+# Anonymous NOT-Rule
+anon_not_rule = PAREN_L, WS, NOT, WS, item , WS, PAREN_R, WS;
+
+# Character Class
+class = range_cc / single_cc / negation_cc / exclusion_cc / combination_cc;
+classes = class +;
+
+# Range Character Class
+single_cc = character , WS;
+range_cc = character , WS , DASH , WS , character , WS;
+
+# Combination Character Class
+combination_cc = SQUARE_BRACKET_L , WS , classes , WS , SQUARE_BRACKET_R , WS;
+
+# Negation Character Class
+negation_cc = SQUARE_BRACKET_L, WS , XOR , WS , classes , WS , SQUARE_BRACKET_R , WS;
+
+# Exclusion Character Class
+exclusion_cc = SQUARE_BRACKET_L, WS , class , WS , XOR , WS , class , WS , SQUARE_BRACKET_R , WS;
+
+# Item
+item = anon_rule / name;
+
+# Rule Names
+assignee = NAME_HEAD, NAME_TAIL;
+name = NAME_HEAD, NAME_TAIL;
+
+# Character Literal
+character = character_literal / character_numeric / character_maximum / character_minimum;
+
+    character_literal = SINGLE_QUOTE , ANY_CHAR , SINGLE_QUOTE;
+
+    character_numeric = digits, LETTER_C;
+
+    character_maximum = "MAX" , (! name);
+
+    character_minimum = "MIN" , (! name);
+
+# String Literals
+string = QUOTE, string_body, QUOTE;
+
+    string_body = NON_QUOTE *;
+
+# Single-Line Comments
+comment = pound_comment / slash_comment;
+
+    pound_comment = POUND, comment_body, NEWLINE;
+
+    slash_comment = DOUBLE_SLASH, comment_body, NEWLINE;
+
+    comment_body = NON_NEWLINE *;
+
+
