@@ -17,7 +17,7 @@ package high.mackenzie.snowflake.designer.gui.tabs;
 
 import high.mackenzie.snowflake.designer.gui.DisplayableTreeNode;
 import java.awt.Color;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 
 /**
@@ -49,8 +49,8 @@ public class ConcreteSyntaxTreePanel
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        nodeTextPane = new javax.swing.JTextPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        nodeTextArea = new javax.swing.JTextArea();
 
         setName("Form"); // NOI18N
 
@@ -71,13 +71,14 @@ public class ConcreteSyntaxTreePanel
 
         jSplitPane1.setLeftComponent(jScrollPane1);
 
-        jScrollPane3.setName("jScrollPane3"); // NOI18N
+        jScrollPane2.setName("jScrollPane2"); // NOI18N
 
-        nodeTextPane.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
-        nodeTextPane.setName("nodeTextPane"); // NOI18N
-        jScrollPane3.setViewportView(nodeTextPane);
+        nodeTextArea.setColumns(20);
+        nodeTextArea.setRows(5);
+        nodeTextArea.setName("nodeTextArea"); // NOI18N
+        jScrollPane2.setViewportView(nodeTextArea);
 
-        jSplitPane1.setRightComponent(jScrollPane3);
+        jSplitPane1.setRightComponent(jScrollPane2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -99,22 +100,22 @@ public class ConcreteSyntaxTreePanel
 
         if (obj instanceof DisplayableTreeNode)
         {
-            nodeTextPane.setForeground(Color.BLACK);
-            nodeTextPane.setText(((DisplayableTreeNode) obj).getMatchText());
+            nodeTextArea.setForeground(Color.BLACK);
+            nodeTextArea.setText(((DisplayableTreeNode) obj).getMatchText());
         }
         else
         {
-            nodeTextPane.setForeground(Color.RED);
-            nodeTextPane.setText("<error>");
+            nodeTextArea.setForeground(Color.RED);
+            nodeTextArea.setText("<error>");
         }
     }//GEN-LAST:event_jTree1ValueChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTree jTree1;
-    private javax.swing.JTextPane nodeTextPane;
+    private javax.swing.JTextArea nodeTextArea;
     // End of variables declaration//GEN-END:variables
 
     public JTree getParseTree()
@@ -122,8 +123,8 @@ public class ConcreteSyntaxTreePanel
         return jTree1;
     }
 
-    public JTextPane getTextPane()
+    public JTextArea getTextArea()
     {
-        return nodeTextPane;
+        return nodeTextArea;
     }
 }

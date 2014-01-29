@@ -76,7 +76,7 @@ XOR = '^';
 # Whitespace
 WS = WS_ELEMENT *;
 WS_ELEMENT = WS_CHAR / comment;
-WS_CHAR = [ ' ' 10C  9C ];
+WS_CHAR = [ ' ' 10C 9C 13C];
 
 ####################################################################################################
 #                          Non-Lexical Rules

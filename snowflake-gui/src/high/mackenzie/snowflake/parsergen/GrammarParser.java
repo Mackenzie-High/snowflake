@@ -8,7 +8,7 @@ import high.mackenzie.snowflake.ParserOutput;
 /**
  * This class was auto-generated using the Snowflake parser-generator.
  *
- * <p>Generated On: Sun Jan 26 22:44:34 EST 2014</p>
+ * <p>Generated On: Wed Jan 29 13:12:26 EST 2014</p>
  */
 public final class GrammarParser
         implements IParser
@@ -74,7 +74,8 @@ public final class GrammarParser
         g.range("@class48", (char) 32, (char) 32);
         g.range("@class49", (char) 10, (char) 10);
         g.range("@class50", (char) 9, (char) 9);
-        g.combine("@class51", "@class48", "@class49", "@class50");
+        g.range("@class51", (char) 13, (char) 13);
+        g.combine("@class52", "@class48", "@class49", "@class50", "@class51");
 
         // Grammar Rules
         g.choose("WS_ELEMENT", "WS_CHAR", "comment");
@@ -122,7 +123,7 @@ public final class GrammarParser
         g.chr("TAB", "@class44");
         g.chr("UNDERSCORE", "@class45");
         g.chr("UPPER", "@class46");
-        g.chr("WS_CHAR", "@class51");
+        g.chr("WS_CHAR", "@class52");
         g.chr("XOR", "@class47");
         g.not("@1", "name");
         g.not("@3", "name");

@@ -18,7 +18,7 @@ package high.mackenzie.snowflake.designer.gui.tabs;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.text.DefaultEditorKit;
 
 /**
@@ -48,8 +48,8 @@ public class EditorPanel
     {
 
         editorTextboxPopupMenu = new javax.swing.JPopupMenu();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        editor_textbox = new javax.swing.JTextPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        editor_textbox = new javax.swing.JTextArea();
 
         editorTextboxPopupMenu.setName("editorTextboxPopupMenu"); // NOI18N
         editor_textbox.add(editorTextboxPopupMenu);
@@ -81,28 +81,29 @@ public class EditorPanel
 
         setName("Form"); // NOI18N
 
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
+        jScrollPane2.setName("jScrollPane2"); // NOI18N
 
-        editor_textbox.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        editor_textbox.setColumns(20);
+        editor_textbox.setRows(5);
         editor_textbox.setName("editor_textbox"); // NOI18N
-        jScrollPane1.setViewportView(editor_textbox);
+        jScrollPane2.setViewportView(editor_textbox);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu editorTextboxPopupMenu;
-    private javax.swing.JTextPane editor_textbox;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea editor_textbox;
+    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 
     private final class SelectAllAction
@@ -114,7 +115,7 @@ public class EditorPanel
         }
     }
 
-    public JTextPane getTextPane()
+    public JTextArea getTextArea()
     {
         return editor_textbox;
     }

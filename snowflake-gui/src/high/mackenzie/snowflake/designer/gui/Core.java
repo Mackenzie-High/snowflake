@@ -37,7 +37,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileFilter;
@@ -65,9 +65,6 @@ public final class Core
             return "Snowflake Project";
         }
     };
-
-    // This style will work on both Windows and Linux.
-    private static final NewlineStyles NEWLINE = NewlineStyles.LF;
 
     private static final Preferences preferences = Preferences.userRoot().node(Core.class.getName());
 
@@ -147,34 +144,34 @@ public final class Core
 
         final Font font = new Font("Monospaced", Font.PLAIN, 14);
 
-        Core.input.getTextPane().setFont(font);
+        Core.input.getTextArea().setFont(font);
 
-        Core.grammar.getTextPane().setFont(font);
+        Core.grammar.getTextArea().setFont(font);
 
-        Core.output.getTextPane().setEditable(false);
+        Core.output.getTextArea().setEditable(false);
 
-        license.getTextPane().setEditable(false);
-        license.getTextPane().setText("Copyright 2013 Michael Mackenzie High\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n     http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.".replace("\n", NEWLINE.newline()));
+        license.getTextArea().setEditable(false);
+        license.getTextArea().setText("Copyright 2013 Michael Mackenzie High\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n     http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.");
 
         // Add listeners that update the line and column status labels.
-        Core.grammar.getTextPane().addCaretListener(Core.newRefreshListener(Core.grammar.getTextPane()));
-        Core.input.getTextPane().addCaretListener(Core.newRefreshListener(Core.input.getTextPane()));
-        Core.parse_tree.getTextPane().addCaretListener(Core.newRefreshListener(Core.parse_tree.getTextPane()));
-        Core.output.getTextPane().addCaretListener(Core.newRefreshListener(Core.output.getTextPane()));
-        Core.generated_parser.getTextPane().addCaretListener(Core.newRefreshListener(Core.generated_parser.getTextPane()));
-        Core.generated_visitor.getTextPane().addCaretListener(Core.newRefreshListener(Core.generated_visitor.getTextPane()));
-        Core.license.getTextPane().addCaretListener(Core.newRefreshListener(Core.license.getTextPane()));
+        Core.grammar.getTextArea().addCaretListener(Core.newRefreshListener(Core.grammar.getTextArea()));
+        Core.input.getTextArea().addCaretListener(Core.newRefreshListener(Core.input.getTextArea()));
+        Core.parse_tree.getTextArea().addCaretListener(Core.newRefreshListener(Core.parse_tree.getTextArea()));
+        Core.output.getTextArea().addCaretListener(Core.newRefreshListener(Core.output.getTextArea()));
+        Core.generated_parser.getTextArea().addCaretListener(Core.newRefreshListener(Core.generated_parser.getTextArea()));
+        Core.generated_visitor.getTextArea().addCaretListener(Core.newRefreshListener(Core.generated_visitor.getTextArea()));
+        Core.license.getTextArea().addCaretListener(Core.newRefreshListener(Core.license.getTextArea()));
 
-        Core.parse_tree.getTextPane().setFont(font);
-        Core.parse_tree.getTextPane().setEditable(false);
+        Core.parse_tree.getTextArea().setFont(font);
+        Core.parse_tree.getTextArea().setEditable(false);
 
         // Make sure that the line and column numbers are displayed, when the program loads.
-        Core.grammar.getTextPane().setText(" ");
-        Core.grammar.getTextPane().setCaretPosition(0);
-        Core.grammar.getTextPane().setText("");
+        Core.grammar.getTextArea().setText(" ");
+        Core.grammar.getTextArea().setCaretPosition(0);
+        Core.grammar.getTextArea().setText("");
 
-//        final SyntaxHighlighter highlighter = new SyntaxHighlighter(Core.grammar.getTextPane(), 200);
-//        Core.grammar.getTextPane().setDocument(highlighter);
+//        final SyntaxHighlighter highlighter = new SyntaxHighlighter(Core.grammar.getTextArea(), 200);
+//        Core.grammar.getTextArea().setDocument(highlighter);
 //        highlighter.start();
     }
 
@@ -207,12 +204,12 @@ public final class Core
         /**
          * Get the grammar from the "Grammar" tab.
          */
-        final String strGrammar = grammar.getTextPane().getText();
+        final String strGrammar = grammar.getTextArea().getText();
 
         /**
          * Get the input from the "Input" tab.
          */
-        final String strInput = input.getTextPane().getText();
+        final String strInput = input.getTextArea().getText();
 
         /**
          * This will be the dynamically created parser.
@@ -234,8 +231,8 @@ public final class Core
             // Under very limited normal circumstances, the program may appear to freeze.
             // However, the parser will run out of heap space.
             // As a result, the parser will eventually complete its parsing attempt.
-            output.getTextPane().setForeground(Color.BLACK);
-            output.getTextPane().setText(("Please wait, parsing may take a moment.\n"
+            output.getTextArea().setForeground(Color.BLACK);
+            output.getTextArea().setText(("Please wait, parsing may take a moment.\n"
                                           + "\n"
                                           + "If the program appears to freeze, your grammar most likely contains a bug.\n"
                                           + "After a few minutes max, the program will run out of heap space.\n"
@@ -243,8 +240,8 @@ public final class Core
                                           + "\n"
                                           + "Example of a buggy grammar:\n"
                                           + "  root = moo *;\n"
-                                          + "  moo = \"\";\n").replace("\n", NEWLINE.newline()));
-            output.getTextPane().setCaretPosition(0);
+                                          + "  moo = \"\";\n"));
+            output.getTextArea().setCaretPosition(0);
             tabs.setSelectedComponent(output);
 
             try
@@ -282,8 +279,16 @@ public final class Core
                 stdout.flush();
 
                 // Display the standard-output via the GUI's "Output" tab.
-                output.getTextPane().setText(stdout.toString());
-                output.getTextPane().setCaretPosition(0);
+                output.getTextArea().setText(stdout.toString());
+                output.getTextArea().setCaretPosition(0);
+
+                // TODO: Remove This
+                System.out.println(NewlineStyles.fromGuess(grammar.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
+                System.out.println(NewlineStyles.fromGuess(input.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
+                System.out.println(NewlineStyles.fromGuess(output.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
+                System.out.println(NewlineStyles.fromGuess(generated_parser.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
+                System.out.println(NewlineStyles.fromGuess(generated_visitor.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
+                System.out.println(NewlineStyles.fromGuess(license.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
 
                 // Stop blocking the parse action.
                 Core.parse_thread = null;
@@ -345,7 +350,7 @@ public final class Core
         {
             // Note: The parser-generator has already written the error info to the print-stream.
 
-            output.getTextPane().setForeground(Color.RED);
+            output.getTextArea().setForeground(Color.RED);
 
             tabs.setSelectedComponent(output);
         }
@@ -362,10 +367,10 @@ public final class Core
             // Display the parse-tree via the GUI.
             final TreeModel model = new DefaultTreeModel(disroot);
             parse_tree.getParseTree().setModel(model);
-            parse_tree.getTextPane().setText("");
+            parse_tree.getTextArea().setText("");
 
             // Since the parsing attempt was successful, the output color must be black.
-            output.getTextPane().setForeground(Color.BLACK);
+            output.getTextArea().setForeground(Color.BLACK);
 
             // Report that the parsing attempt was successful.
             // Also, display the tracer-records generated by the parser.
@@ -383,12 +388,15 @@ public final class Core
 
         private void reportParsingFailed()
         {
+            // Determine the style of newline that is present in the input.
+            final NewlineStyles newline = NewlineStyles.fromGuess(strInput, NewlineStyles.LF);
+
             // Print information regarding the failed parsing-attempt.
             // For example, print the estimated location of the syntax error.
-            parser_output.print(writer, NEWLINE, true, true, true);
+            parser_output.print(writer, newline, true, true, true);
 
             // Since an error is being reported, the output color must be red.
-            output.getTextPane().setForeground(Color.RED);
+            output.getTextArea().setForeground(Color.RED);
 
             // Since an error is being reported, the GUI's "Output" tab must take the focus.
             tabs.setSelectedComponent(output);
@@ -406,7 +414,7 @@ public final class Core
             exception.printStackTrace(writer);
 
             // Since an error is being reported, the output color must be red.
-            output.getTextPane().setForeground(Color.RED);
+            output.getTextArea().setForeground(Color.RED);
 
             // Since an error is being reported, the GUI's "Output" tab must take the focus.
             tabs.setSelectedComponent(output);
@@ -420,7 +428,7 @@ public final class Core
             unexpected.printStackTrace(writer);
 
             // Since an error is being reported, the output color must be red.
-            output.getTextPane().setForeground(Color.RED);
+            output.getTextArea().setForeground(Color.RED);
 
             // Since an error is being reported, the GUI's "Output" tab must take the focus.
             tabs.setSelectedComponent(output);
@@ -469,15 +477,15 @@ public final class Core
                 if (stringFile.getFilepath().equals(new File("Grammar.txt")))
                 {
                     valid = true;
-                    grammar.getTextPane().setText(stringFile.getSourceCode());
-                    saved_grammar = grammar.getTextPane().getText();
+                    grammar.getTextArea().setText(stringFile.getSourceCode());
+                    saved_grammar = grammar.getTextArea().getText();
                 }
 
                 if (stringFile.getFilepath().equals(new File("Input.txt")))
                 {
                     valid = true;
-                    input.getTextPane().setText(stringFile.getSourceCode());
-                    saved_input = input.getTextPane().getText();
+                    input.getTextArea().setText(stringFile.getSourceCode());
+                    saved_input = input.getTextArea().getText();
                 }
             }
 
@@ -493,9 +501,9 @@ public final class Core
         catch (Exception ex)
         {
             // Display the error via the output tab.
-            output.getTextPane().setForeground(Color.RED);
-            output.getTextPane().setText(ex.toString());
-            output.getTextPane().setCaretPosition(0);
+            output.getTextArea().setForeground(Color.RED);
+            output.getTextArea().setText(ex.toString());
+            output.getTextArea().setCaretPosition(0);
             tabs.setSelectedComponent(output);
             return;
         }
@@ -559,22 +567,22 @@ public final class Core
         // Retrieve the content of the "Grammar" tab.
         final StringFile grammar_file = new StringFile();
         grammar_file.setFilepath(new File("Grammar.txt"));
-        grammar_file.setSourceCode(grammar.getTextPane().getText());
+        grammar_file.setSourceCode(grammar.getTextArea().getText());
 
         // Retrieve the content of the "Input" tab.
         final StringFile input_file = new StringFile();
         input_file.setFilepath(new File("Input.txt"));
-        input_file.setSourceCode(input.getTextPane().getText());
+        input_file.setSourceCode(input.getTextArea().getText());
 
         // Retrieve the content of the "Generated Parser" tab.
         final StringFile parser_file = new StringFile();
         parser_file.setFilepath(new File("Parser.java"));
-        parser_file.setSourceCode(generated_parser.getTextPane().getText());
+        parser_file.setSourceCode(generated_parser.getTextArea().getText());
 
         // Retrieve the content of the "Generated Visitor" tab.
         final StringFile visitor_file = new StringFile();
         visitor_file.setFilepath(new File("Visitor.java"));
-        visitor_file.setSourceCode(generated_visitor.getTextPane().getText());
+        visitor_file.setSourceCode(generated_visitor.getTextArea().getText());
 
         // Create a list of the files that will be placed into the .zip file.
         final List<StringFile> files = Arrays.asList(grammar_file,
@@ -596,9 +604,9 @@ public final class Core
         catch (Exception ex)
         {
             // Display the error via the "Output" tab.
-            output.getTextPane().setForeground(Color.RED);
-            output.getTextPane().setText(ex.toString());
-            output.getTextPane().setCaretPosition(0);
+            output.getTextArea().setForeground(Color.RED);
+            output.getTextArea().setText(ex.toString());
+            output.getTextArea().setCaretPosition(0);
             tabs.setSelectedComponent(output);
         }
 
@@ -636,27 +644,27 @@ public final class Core
 
             final ParserGenerator pg = ParserGenerator.forJava(stdout);
 
-            pg.parseGrammar(grammar.getTextPane().getText());
+            pg.parseGrammar(grammar.getTextArea().getText());
 
-            generated_parser.getTextPane().setText(pg.getParserFile());
-            generated_parser.getTextPane().setCaretPosition(0);
+            generated_parser.getTextArea().setText(pg.getParserFile());
+            generated_parser.getTextArea().setCaretPosition(0);
 
-            generated_visitor.getTextPane().setText(pg.getVisitorFile());
-            generated_visitor.getTextPane().setCaretPosition(0);
+            generated_visitor.getTextArea().setText(pg.getVisitorFile());
+            generated_visitor.getTextArea().setCaretPosition(0);
 
             pg.exportFiles();
 
-            output.getTextPane().setForeground(Color.BLACK);
-            output.getTextPane().setText("Your parser and visitor were successfully generated.");
+            output.getTextArea().setForeground(Color.BLACK);
+            output.getTextArea().setText("Your parser and visitor were successfully generated.");
 
             tabs.setSelectedComponent(generated_parser);
         }
         catch (RuntimeException ex)
         {
             // Display the error via the "Output" tab.
-            output.getTextPane().setForeground(Color.RED);
-            output.getTextPane().setText(ex.toString());
-            output.getTextPane().setCaretPosition(0);
+            output.getTextArea().setForeground(Color.RED);
+            output.getTextArea().setText(ex.toString());
+            output.getTextArea().setCaretPosition(0);
             tabs.setSelectedComponent(output);
         }
     }
@@ -674,8 +682,8 @@ public final class Core
      */
     public static void exit()
     {
-        final boolean grammar_changed = !grammar.getTextPane().getText().equals(saved_grammar);
-        final boolean input_changed = !input.getTextPane().getText().equals(saved_input);
+        final boolean grammar_changed = !grammar.getTextArea().getText().equals(saved_grammar);
+        final boolean input_changed = !input.getTextArea().getText().equals(saved_input);
 
         if (grammar_changed || input_changed)
         {
@@ -707,7 +715,7 @@ public final class Core
 
     public static void showFontDialog()
     {
-        float size = Core.grammar.getTextPane().getFont().getSize();
+        float size = Core.grammar.getTextArea().getFont().getSize();
 
         final String answer = JOptionPane.showInputDialog(main,
                                                           "Font Size: ",
@@ -729,17 +737,17 @@ public final class Core
     {
         final float size = preferences.getFloat(FONT_SIZE_PREFERENCE, 12.0F);
 
-        final Font old_font = grammar.getTextPane().getFont();
+        final Font old_font = grammar.getTextArea().getFont();
 
         final Font new_font = old_font.deriveFont(size);
 
-        grammar.getTextPane().setFont(new_font);
-        input.getTextPane().setFont(new_font);
-        output.getTextPane().setFont(new_font);
-        parse_tree.getTextPane().setFont(new_font);
-        generated_parser.getTextPane().setFont(new_font);
-        generated_visitor.getTextPane().setFont(new_font);
-        license.getTextPane().setFont(new_font);
+        grammar.getTextArea().setFont(new_font);
+        input.getTextArea().setFont(new_font);
+        output.getTextArea().setFont(new_font);
+        parse_tree.getTextArea().setFont(new_font);
+        generated_parser.getTextArea().setFont(new_font);
+        generated_visitor.getTextArea().setFont(new_font);
+        license.getTextArea().setFont(new_font);
     }
 
     private static void refreshProjectLabel()
@@ -754,25 +762,18 @@ public final class Core
      *
      * @param text is the text-box whose line and column numbers shall be displayed.
      */
-    private static void refreshPosition(final JTextPane text)
+    private static void refreshPosition(final JTextArea text)
     {
         final int position = text.getCaretPosition();
 
-        String txt = (text.getText() + "$");
+        final String txt = (text.getText() + "$");
 
-        // If we are on Windows, convert Windows newlines to Linux newlines.
-        txt = NewlineStyles.fromSystem() == NewlineStyles.CR_LF
-                ? txt.replace("\r", "")
-                : txt;
-
-        // If we are on Mac?, convert Mac? newlines to Linux newlines.
-        txt = NewlineStyles.fromSystem() == NewlineStyles.CR
-                ? txt.replace("\r", "\n")
-                : txt;
+        // Determine the style of newline that is present in the input.
+        final NewlineStyles newline = NewlineStyles.fromGuess(txt, NewlineStyles.LF);
 
         final char[] chars = txt.toCharArray();
 
-        final LinesAndColumns finder = new LinesAndColumns(chars, NEWLINE);
+        final LinesAndColumns finder = new LinesAndColumns(chars, newline);
 
         final String line = "Line: " + zfill(5, finder.lineNumbers()[position]);
 
@@ -811,7 +812,7 @@ public final class Core
      * @param textbox is the text-box that may change.
      * @return the aforedescribed new listener.
      */
-    private static CaretListener newRefreshListener(final JTextPane textbox)
+    private static CaretListener newRefreshListener(final JTextArea textbox)
     {
         return new CaretListener()
         {
