@@ -51,7 +51,7 @@ import javax.swing.tree.TreeModel;
  */
 public final class Core
 {
-    private static final FileFilter filter = new FileFilter()
+    private static final FileFilter file_filter = new FileFilter()
     {
         @Override
         public boolean accept(final File path)
@@ -131,8 +131,8 @@ public final class Core
      */
     static
     {
-        file_chooser.addChoosableFileFilter(filter);
-        file_chooser.setFileFilter(filter);
+        file_chooser.addChoosableFileFilter(file_filter);
+        file_chooser.setFileFilter(file_filter);
 
         tabs.add("Grammar", grammar);
         tabs.add("Input", input);
@@ -281,14 +281,6 @@ public final class Core
                 // Display the standard-output via the GUI's "Output" tab.
                 output.getTextArea().setText(stdout.toString());
                 output.getTextArea().setCaretPosition(0);
-
-                // TODO: Remove This
-                System.out.println(NewlineStyles.fromGuess(grammar.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
-                System.out.println(NewlineStyles.fromGuess(input.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
-                System.out.println(NewlineStyles.fromGuess(output.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
-                System.out.println(NewlineStyles.fromGuess(generated_parser.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
-                System.out.println(NewlineStyles.fromGuess(generated_visitor.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
-                System.out.println(NewlineStyles.fromGuess(license.getTextArea().getText(), NewlineStyles.UNSUPPORTED));
 
                 // Stop blocking the parse action.
                 Core.parse_thread = null;
@@ -525,7 +517,14 @@ public final class Core
         file_chooser.showSaveDialog(null);
 
         // Retrieve the file selected by the user.
-        final File file = file_chooser.getSelectedFile();
+        File file = file_chooser.getSelectedFile();
+
+        // If the user is saving the project as a Snowflake project,
+        // then make sure the file has a .snow extension.
+        if (file_chooser.getFileFilter() == file_filter && !file.getPath().endsWith(".snow"))
+        {
+            file = new File(file.getPath() + ".snow");
+        }
 
         // If the user did not select a file, then no action can be performed.
         if (file == null)
