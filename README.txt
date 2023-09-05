@@ -1,11 +1,11 @@
 Snowflake lets you interactively create recursive-descent parsers.
 
-Website: http://mackenzie-high.github.io/snowflake/
+Website: https://www.mackenziehigh.com/snowflake/
 
-Very Quick Demo: http://tinyurl.com/ph7nv29
+Very Quick Demo: https://tinyurl.com/ph7nv29
 
-Grammar Cheat Sheet: http://tinyurl.com/lhjnj2d
+Grammar Cheat Sheet: https://tinyurl.com/lhjnj2d
 
-Ready to Run JAR of GUI: http://tinyurl.com/pcjp3ty
+Ready to Run JAR of GUI: https://tinyurl.com/pcjp3ty
 
-JAR of Library Only: http://tinyurl.com/o3s6h9r
+JAR of Library Only: https://tinyurl.com/o3s6h9r
