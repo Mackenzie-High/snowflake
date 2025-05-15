@@ -283,11 +283,11 @@ public final class LivePortfolio
 
     public static void main (String[] args)
     {
-        args = new String[4];
-        args[0] = "parse";
-        args[1] = "/home/mackenzie/Code/snowflake/example/grammar.txt";
-        args[2] = "/home/mackenzie/Code/snowflake/example/input.txt";
-        args[3] = "/home/mackenzie/Code/snowflake/example/output.txt";
+//        args = new String[4];
+//        args[0] = "parse";
+//        args[1] = "/home/mackenzie/Code/snowflake/example/grammar.txt";
+//        args[2] = "/home/mackenzie/Code/snowflake/example/input.txt";
+//        args[3] = "/home/mackenzie/Code/snowflake/example/output.txt";
 
         try
         {
