@@ -54,8 +54,8 @@ public final class LivePortfolio
         output.set("success", false);
         output.set("message", "");
         output.set("parse_tree", null);
-        output.set("parser", "");
-        output.set("visitor", "");
+//        output.set("parser", "");
+//        output.set("visitor", "");
     }
 
     /**
@@ -153,8 +153,8 @@ public final class LivePortfolio
         }
 
         final var result = Json.object();
-        result.set("leaf", true);
-        result.set("children", Json.array(children));
+        result.set("leaf", false);
+        result.set("children", children);
         result.set("start", node.start());
         result.set("length", node.length());
         result.set("text", node.text());
@@ -192,8 +192,6 @@ public final class LivePortfolio
         writer.println();
         parser_output.trace().print(writer);
         writer.println();
-        writer.println();
-        writer.println(json.toString());
     }
 
     private static void reportParsingFailed (final String input)
