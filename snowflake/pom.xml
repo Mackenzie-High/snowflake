@@ -30,7 +30,7 @@
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <mainClass>high.mackenzie.snowflake.portfolio.Main</mainClass>
+                            <mainClass>com.mackenziehigh.snowflake.portfolio.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
