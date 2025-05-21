@@ -7,9 +7,9 @@
     <version>1.0-SNAPSHOT</version>
     <name>snowflake</name>
     <properties>
-        <maven.compiler.source>24</maven.compiler.source>
-        <maven.compiler.target>24</maven.compiler.target>
-        <maven.compiler.release>24</maven.compiler.release>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.release>8</maven.compiler.release>
     </properties>
     <dependencies>
         <dependency>
@@ -30,7 +30,7 @@
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <mainClass>high.mackenzie.snowflake.designer.gui.LivePortfolio</mainClass>
+                            <mainClass>high.mackenzie.snowflake.portfolio.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
