@@ -55,23 +55,14 @@ jobs:
         name: javadoc
         path: snowflake/target/site/apidocs/
 
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/master'
+    - name: Deploy JaCoCo to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: target/site/jacoco
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy JaCoCo to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/jacoco
-
-      - name: Deploy JavaDoc to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/apidocs
+    - name: Deploy JavaDoc to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: target/site/apidocs
