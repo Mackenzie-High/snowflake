@@ -65,7 +65,7 @@ Click on nodes to see the portion of text corresponding to that node.
 
 ## Introduction to Parsing using PEGs
 
-[Parsing Expression Grammars: An Example Driven Introduction](https://www.mackenziehigh.com/snowflake/v2_0/Grammars.pdf) is a powerpoint presentation that will introduce you to parsing using Parsing Expression Grammars.
+[Here](https://www.mackenziehigh.com/snowflake/v2_0/Grammars.pdf) is a powerpoint presentation that will introduce you to parsing using Parsing Expression Grammars.
 
 ## Example Grammars
 
