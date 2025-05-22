@@ -12,6 +12,14 @@
 
 ## Steps
 
+**Step: Clone this repository and change into the proper directory.**
+
+```plain
+mackenzie@caprica: git clone https://github.com/Mackenzie-High/snowflake.git
+mackenzie@caprica:
+mackenzie@caprica: cd snowflake/examples/prefix-calculator-example/
+```
+
 **Step (optional): Generate the [Parser.java](src/main/java/example/Parser.java) and [AbstractVisitor.java](src/main/java/example/AbstractVisitor.java) classes.**
 
 + Open the `prefix.snow` file using the Snowflake GUI.
