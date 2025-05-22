@@ -2,7 +2,7 @@ Snowflake lets you interactively create [PEG](https://en.wikipedia.org/wiki/Pars
 
 **Quick Links:**
 + [Grammar Cheat Sheet](examples/CheatSheet.md)
-+ [JavaDoc](https://mackenzie-high.github.io/snowflake/javadoc/index.html)
++ [JavaDoc](https://mackenzie-high.github.io/snowflake/javadoc/com/mackenziehigh/snowflake/package-summary.html)
 + [Code Coverage](https://mackenzie-high.github.io/snowflake/jacoco/com.mackenziehigh.snowflake/index.html)
 
 **Maven Dependency:**
