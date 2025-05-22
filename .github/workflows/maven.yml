@@ -55,6 +55,12 @@ jobs:
         name: javadoc
         path: snowflake/target/site/apidocs/
 
+    - name: List PWD
+      run: pwd
+
+    - name: List Javadoc directory before publishing
+      run: ls -R ./
+
     - name: Deploy JaCoCo to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
