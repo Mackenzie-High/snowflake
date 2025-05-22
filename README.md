@@ -56,7 +56,7 @@ Click `Action -> Parse` on the GUI.
 
 The grammar will be used to parse the example input and then the resulting parse tree will be displayed.
 
-The nodes in the tree correspond to the matching grammar rule.
+The nodes in the tree correspond to the matching grammar rules.
 
 Click on nodes to see the portion of text corresponding to that node.
 
@@ -68,15 +68,7 @@ Click on nodes to see the portion of text corresponding to that node.
 
 [Here](https://www.mackenziehigh.com/snowflake/v2_0/Grammars.pdf) is a powerpoint presentation that will introduce you to parsing using Parsing Expression Grammars.
 
-## Example Grammars
-
-These grammar files can be opened using the grammar editor via `File -> Open Project`.
-
-+ [Simple Phone Book](https://www.mackenziehigh.com/snowflake/v2_0/grammars/phonebook.snow)
-+ [Prefix Notation Calculator](https://www.mackenziehigh.com/snowflake/v2_0/grammars/prefix.snow)
-+ [Infix Notation Calculator](https://www.mackenziehigh.com/snowflake/v2_0/grammars/infix.snow)
-
-## Full Example Projects
+## Example Projects
 
 These projects include executable example programs that utilize Snowflake for parsing.
 
