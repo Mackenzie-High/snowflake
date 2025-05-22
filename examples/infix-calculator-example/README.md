@@ -12,22 +12,11 @@
 
 ## Steps
 
-**Step: Clone this Git repo.**
+**Step: Clone this repository and change into the proper directory.**
 
 ```plain
 mackenzie@caprica: git clone https://github.com/Mackenzie-High/snowflake.git
-Cloning into 'snowflake'...
-remote: Enumerating objects: 3534, done.
-remote: Counting objects: 100% (331/331), done.
-remote: Compressing objects: 100% (194/194), done.
-remote: Total 3534 (delta 131), reused 256 (delta 93), pack-reused 3203 (from 1)
-Receiving objects: 100% (3534/3534), 7.22 MiB | 10.98 MiB/s, done.
-Resolving deltas: 100% (2464/2464), done.
-```
-
-**Step: Ensure that you are in the proper directory.**
-
-```plain
+mackenzie@caprica:
 mackenzie@caprica: cd snowflake/examples/infix-calculator-example/
 ```
 
