@@ -64,14 +64,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy JavaDoc to GitHub Pages
+      - name: Deploy JaCoCo to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: snowflake/target/site/jacoco
+          publish_dir: target/site/jacoco
 
       - name: Deploy JavaDoc to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: snowflake/target/site/apidocs
+          publish_dir: target/site/apidocs
