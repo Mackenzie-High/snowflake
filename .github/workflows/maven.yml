@@ -55,24 +55,18 @@ jobs:
         name: javadoc
         path: snowflake/target/site/apidocs/
 
-    - name: List PWD
-      run: pwd
-
-    - name: List Javadoc directory before publishing
-      run: ls -R ./
-
     - name: Deploy JaCoCo to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: target/site/jacoco/
+        publish_dir: snowflake/target/site/jacoco/
         keep_files: true
 
     - name: Deploy JavaDoc to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: target/site/apidocs/
+        publish_dir: snowflake/target/site/apidocs/
         keep_files: true
 
         
