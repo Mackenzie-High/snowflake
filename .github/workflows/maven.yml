@@ -44,10 +44,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: jacoco-report
-        path: target/site/jacoco/*
+        path: snowflake/target/site/jacoco/*
 
     - name: Upload Javadoc
       uses: actions/upload-artifact@v4
       with:
         name: javadoc
-        path: target/site/apidocs/*
+        path: snowflake/target/site/apidocs/*
