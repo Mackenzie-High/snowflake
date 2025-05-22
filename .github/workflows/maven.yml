@@ -59,10 +59,14 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: target/site/jacoco
+        publish_dir: target/site/jacoco/
+        keep_files: true
 
     - name: Deploy JavaDoc to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: target/site/apidocs
+        publish_dir: target/site/apidocs/
+        keep_files: true
+
+        
