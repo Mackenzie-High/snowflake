@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GrammarParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.parsergen</a> &gt; <span class="el_source">GrammarParser.java</span></div><h1>GrammarParser.java</h1><pre class="source lang-java linenums">package com.mackenziehigh.snowflake.parsergen;
+
+import com.mackenziehigh.snowflake.Grammar;
+import com.mackenziehigh.snowflake.GrammarBuilder;
+import com.mackenziehigh.snowflake.IParser;
+import com.mackenziehigh.snowflake.ParserOutput;
+
+/**
+ * This class was auto-generated using the Snowflake parser-generator.
+ *
+ * &lt;p&gt;Generated On: Wed Jan 29 13:12:26 EST 2014&lt;/p&gt;
+ */
+<span class="fc" id="L13">public final class GrammarParser</span>
+        implements IParser
+{
+<span class="fc" id="L16">    private static final Grammar grammar = grammar();</span>
+
+    /**
+     * This method constructs the grammar object.
+     */
+    private static Grammar grammar()
+    {
+<span class="fc" id="L23">        final GrammarBuilder g = new GrammarBuilder();</span>
+
+        // Character Classes
+<span class="fc" id="L26">        g.range(&quot;@class0&quot;, (char) 38, (char) 38);</span>
+<span class="fc" id="L27">        g.range(&quot;@class1&quot;, (char) 0, (char) 1000);</span>
+<span class="fc" id="L28">        g.range(&quot;@class2&quot;, (char) 58, (char) 58);</span>
+<span class="fc" id="L29">        g.range(&quot;@class3&quot;, (char) 44, (char) 44);</span>
+<span class="fc" id="L30">        g.range(&quot;@class4&quot;, (char) 123, (char) 123);</span>
+<span class="fc" id="L31">        g.range(&quot;@class5&quot;, (char) 125, (char) 125);</span>
+<span class="fc" id="L32">        g.range(&quot;@class6&quot;, (char) 45, (char) 45);</span>
+<span class="fc" id="L33">        g.range(&quot;@class7&quot;, (char) 48, (char) 57);</span>
+<span class="fc" id="L34">        g.range(&quot;@class8&quot;, (char) 36, (char) 36);</span>
+<span class="fc" id="L35">        g.range(&quot;@class9&quot;, (char) 61, (char) 61);</span>
+<span class="fc" id="L36">        g.range(&quot;@class10&quot;, (char) 47, (char) 47);</span>
+<span class="fc" id="L37">        g.range(&quot;@class11&quot;, (char) 67, (char) 67);</span>
+<span class="fc" id="L38">        g.range(&quot;@class12&quot;, (char) 97, (char) 122);</span>
+<span class="fc" id="L39">        g.range(&quot;@class13&quot;, (char) 65, (char) 90);</span>
+<span class="fc" id="L40">        g.range(&quot;@class14&quot;, (char) 97, (char) 122);</span>
+<span class="fc" id="L41">        g.range(&quot;@class15&quot;, (char) 36, (char) 36);</span>
+<span class="fc" id="L42">        g.range(&quot;@class16&quot;, (char) 95, (char) 95);</span>
+<span class="fc" id="L43">        g.combine(&quot;@class17&quot;, &quot;@class13&quot;, &quot;@class14&quot;, &quot;@class15&quot;, &quot;@class16&quot;);</span>
+<span class="fc" id="L44">        g.range(&quot;@class18&quot;, (char) 65, (char) 90);</span>
+<span class="fc" id="L45">        g.range(&quot;@class19&quot;, (char) 97, (char) 122);</span>
+<span class="fc" id="L46">        g.range(&quot;@class20&quot;, (char) 36, (char) 36);</span>
+<span class="fc" id="L47">        g.range(&quot;@class21&quot;, (char) 95, (char) 95);</span>
+<span class="fc" id="L48">        g.range(&quot;@class22&quot;, (char) 48, (char) 57);</span>
+<span class="fc" id="L49">        g.combine(&quot;@class23&quot;, &quot;@class18&quot;, &quot;@class19&quot;, &quot;@class20&quot;, &quot;@class21&quot;, &quot;@class22&quot;);</span>
+<span class="fc" id="L50">        g.range(&quot;@class24&quot;, (char) 10, (char) 10);</span>
+<span class="fc" id="L51">        g.range(&quot;@class25&quot;, (char) 10, (char) 10);</span>
+<span class="fc" id="L52">        g.combine(&quot;@class26&quot;, &quot;@class25&quot;);</span>
+<span class="fc" id="L53">        g.negate(&quot;@class27&quot;, &quot;@class26&quot;);</span>
+<span class="fc" id="L54">        g.range(&quot;@class28&quot;, (char) 34, (char) 34);</span>
+<span class="fc" id="L55">        g.combine(&quot;@class29&quot;, &quot;@class28&quot;);</span>
+<span class="fc" id="L56">        g.negate(&quot;@class30&quot;, &quot;@class29&quot;);</span>
+<span class="fc" id="L57">        g.range(&quot;@class31&quot;, (char) 33, (char) 33);</span>
+<span class="fc" id="L58">        g.range(&quot;@class32&quot;, (char) 40, (char) 40);</span>
+<span class="fc" id="L59">        g.range(&quot;@class33&quot;, (char) 41, (char) 41);</span>
+<span class="fc" id="L60">        g.range(&quot;@class34&quot;, (char) 43, (char) 43);</span>
+<span class="fc" id="L61">        g.range(&quot;@class35&quot;, (char) 35, (char) 35);</span>
+<span class="fc" id="L62">        g.range(&quot;@class36&quot;, (char) 63, (char) 63);</span>
+<span class="fc" id="L63">        g.range(&quot;@class37&quot;, (char) 34, (char) 34);</span>
+<span class="fc" id="L64">        g.range(&quot;@class38&quot;, (char) 59, (char) 59);</span>
+<span class="fc" id="L65">        g.range(&quot;@class39&quot;, (char) 39, (char) 39);</span>
+<span class="fc" id="L66">        g.range(&quot;@class40&quot;, (char) 32, (char) 32);</span>
+<span class="fc" id="L67">        g.range(&quot;@class41&quot;, (char) 91, (char) 91);</span>
+<span class="fc" id="L68">        g.range(&quot;@class42&quot;, (char) 93, (char) 93);</span>
+<span class="fc" id="L69">        g.range(&quot;@class43&quot;, (char) 42, (char) 42);</span>
+<span class="fc" id="L70">        g.range(&quot;@class44&quot;, (char) 9, (char) 9);</span>
+<span class="fc" id="L71">        g.range(&quot;@class45&quot;, (char) 95, (char) 95);</span>
+<span class="fc" id="L72">        g.range(&quot;@class46&quot;, (char) 65, (char) 90);</span>
+<span class="fc" id="L73">        g.range(&quot;@class47&quot;, (char) 94, (char) 94);</span>
+<span class="fc" id="L74">        g.range(&quot;@class48&quot;, (char) 32, (char) 32);</span>
+<span class="fc" id="L75">        g.range(&quot;@class49&quot;, (char) 10, (char) 10);</span>
+<span class="fc" id="L76">        g.range(&quot;@class50&quot;, (char) 9, (char) 9);</span>
+<span class="fc" id="L77">        g.range(&quot;@class51&quot;, (char) 13, (char) 13);</span>
+<span class="fc" id="L78">        g.combine(&quot;@class52&quot;, &quot;@class48&quot;, &quot;@class49&quot;, &quot;@class50&quot;, &quot;@class51&quot;);</span>
+
+        // Grammar Rules
+<span class="fc" id="L81">        g.choose(&quot;WS_ELEMENT&quot;, &quot;WS_CHAR&quot;, &quot;comment&quot;);</span>
+<span class="fc" id="L82">        g.choose(&quot;anon_rule&quot;, &quot;anon_string_rule&quot;, &quot;anon_character_rule&quot;, &quot;anon_sequence_rule&quot;, &quot;anon_sequencedlr_rule&quot;, &quot;anon_choice_rule&quot;, &quot;anon_option_rule&quot;, &quot;anon_star_rule&quot;, &quot;anon_plus_rule&quot;, &quot;anon_repetition_rule&quot;, &quot;anon_and_rule&quot;, &quot;anon_not_rule&quot;);</span>
+<span class="fc" id="L83">        g.choose(&quot;character&quot;, &quot;character_literal&quot;, &quot;character_numeric&quot;, &quot;character_maximum&quot;, &quot;character_minimum&quot;);</span>
+<span class="fc" id="L84">        g.choose(&quot;class&quot;, &quot;range_cc&quot;, &quot;single_cc&quot;, &quot;negation_cc&quot;, &quot;exclusion_cc&quot;, &quot;combination_cc&quot;);</span>
+<span class="fc" id="L85">        g.choose(&quot;comment&quot;, &quot;pound_comment&quot;, &quot;slash_comment&quot;);</span>
+<span class="fc" id="L86">        g.choose(&quot;directive&quot;, &quot;directive_root&quot;, &quot;directive_hide&quot;, &quot;directive_trace&quot;, &quot;directive_package&quot;, &quot;directive_parser&quot;, &quot;directive_visitor&quot;, &quot;directive_export_parser&quot;, &quot;directive_export_visitor&quot;);</span>
+<span class="fc" id="L87">        g.choose(&quot;entry&quot;, &quot;directive&quot;, &quot;named_rule&quot;);</span>
+<span class="fc" id="L88">        g.choose(&quot;item&quot;, &quot;anon_rule&quot;, &quot;name&quot;);</span>
+<span class="fc" id="L89">        g.choose(&quot;named_rule&quot;, &quot;named_string_rule&quot;, &quot;named_character_rule&quot;, &quot;named_sequence_rule&quot;, &quot;named_sequencedlr_rule&quot;, &quot;named_choice_rule&quot;, &quot;named_option_rule&quot;, &quot;named_star_rule&quot;, &quot;named_plus_rule&quot;, &quot;named_repetition_rule&quot;, &quot;named_and_rule&quot;, &quot;named_not_rule&quot;);</span>
+<span class="fc" id="L90">        g.choose(&quot;named_sequence_rule&quot;, &quot;alias_rule&quot;, &quot;multi_element_rule&quot;);</span>
+<span class="fc" id="L91">        g.choose(&quot;shared&quot;, &quot;sequence&quot;, &quot;item&quot;);</span>
+<span class="fc" id="L92">        g.chr(&quot;AND&quot;, &quot;@class0&quot;);</span>
+<span class="fc" id="L93">        g.chr(&quot;ANY_CHAR&quot;, &quot;@class1&quot;);</span>
+<span class="fc" id="L94">        g.chr(&quot;COLON&quot;, &quot;@class2&quot;);</span>
+<span class="fc" id="L95">        g.chr(&quot;COMMA&quot;, &quot;@class3&quot;);</span>
+<span class="fc" id="L96">        g.chr(&quot;CURLY_BRACKET_L&quot;, &quot;@class4&quot;);</span>
+<span class="fc" id="L97">        g.chr(&quot;CURLY_BRACKET_R&quot;, &quot;@class5&quot;);</span>
+<span class="fc" id="L98">        g.chr(&quot;DASH&quot;, &quot;@class6&quot;);</span>
+<span class="fc" id="L99">        g.chr(&quot;DIGIT&quot;, &quot;@class7&quot;);</span>
+<span class="fc" id="L100">        g.chr(&quot;DOLLAR&quot;, &quot;@class8&quot;);</span>
+<span class="fc" id="L101">        g.chr(&quot;EQUALS&quot;, &quot;@class9&quot;);</span>
+<span class="fc" id="L102">        g.chr(&quot;FORWARD_SLASH&quot;, &quot;@class10&quot;);</span>
+<span class="fc" id="L103">        g.chr(&quot;LETTER_C&quot;, &quot;@class11&quot;);</span>
+<span class="fc" id="L104">        g.chr(&quot;LOWER&quot;, &quot;@class12&quot;);</span>
+<span class="fc" id="L105">        g.chr(&quot;NAME_HEAD&quot;, &quot;@class17&quot;);</span>
+<span class="fc" id="L106">        g.chr(&quot;NAME_TAIL_CHAR&quot;, &quot;@class23&quot;);</span>
+<span class="fc" id="L107">        g.chr(&quot;NEWLINE&quot;, &quot;@class24&quot;);</span>
+<span class="fc" id="L108">        g.chr(&quot;NON_NEWLINE&quot;, &quot;@class27&quot;);</span>
+<span class="fc" id="L109">        g.chr(&quot;NON_QUOTE&quot;, &quot;@class30&quot;);</span>
+<span class="fc" id="L110">        g.chr(&quot;NOT&quot;, &quot;@class31&quot;);</span>
+<span class="fc" id="L111">        g.chr(&quot;PAREN_L&quot;, &quot;@class32&quot;);</span>
+<span class="fc" id="L112">        g.chr(&quot;PAREN_R&quot;, &quot;@class33&quot;);</span>
+<span class="fc" id="L113">        g.chr(&quot;PLUS&quot;, &quot;@class34&quot;);</span>
+<span class="fc" id="L114">        g.chr(&quot;POUND&quot;, &quot;@class35&quot;);</span>
+<span class="fc" id="L115">        g.chr(&quot;QUESTION&quot;, &quot;@class36&quot;);</span>
+<span class="fc" id="L116">        g.chr(&quot;QUOTE&quot;, &quot;@class37&quot;);</span>
+<span class="fc" id="L117">        g.chr(&quot;SEMICOLON&quot;, &quot;@class38&quot;);</span>
+<span class="fc" id="L118">        g.chr(&quot;SINGLE_QUOTE&quot;, &quot;@class39&quot;);</span>
+<span class="fc" id="L119">        g.chr(&quot;SPACE&quot;, &quot;@class40&quot;);</span>
+<span class="fc" id="L120">        g.chr(&quot;SQUARE_BRACKET_L&quot;, &quot;@class41&quot;);</span>
+<span class="fc" id="L121">        g.chr(&quot;SQUARE_BRACKET_R&quot;, &quot;@class42&quot;);</span>
+<span class="fc" id="L122">        g.chr(&quot;STAR&quot;, &quot;@class43&quot;);</span>
+<span class="fc" id="L123">        g.chr(&quot;TAB&quot;, &quot;@class44&quot;);</span>
+<span class="fc" id="L124">        g.chr(&quot;UNDERSCORE&quot;, &quot;@class45&quot;);</span>
+<span class="fc" id="L125">        g.chr(&quot;UPPER&quot;, &quot;@class46&quot;);</span>
+<span class="fc" id="L126">        g.chr(&quot;WS_CHAR&quot;, &quot;@class52&quot;);</span>
+<span class="fc" id="L127">        g.chr(&quot;XOR&quot;, &quot;@class47&quot;);</span>
+<span class="fc" id="L128">        g.not(&quot;@1&quot;, &quot;name&quot;);</span>
+<span class="fc" id="L129">        g.not(&quot;@3&quot;, &quot;name&quot;);</span>
+<span class="fc" id="L130">        g.repeat(&quot;NAME_TAIL&quot;, &quot;NAME_TAIL_CHAR&quot;, 0, 2147483647);</span>
+<span class="fc" id="L131">        g.repeat(&quot;WS&quot;, &quot;WS_ELEMENT&quot;, 0, 2147483647);</span>
+<span class="fc" id="L132">        g.repeat(&quot;choice_tail&quot;, &quot;choice_tail_element&quot;, 1, 2147483647);</span>
+<span class="fc" id="L133">        g.repeat(&quot;classes&quot;, &quot;class&quot;, 1, 2147483647);</span>
+<span class="fc" id="L134">        g.repeat(&quot;comment_body&quot;, &quot;NON_NEWLINE&quot;, 0, 2147483647);</span>
+<span class="fc" id="L135">        g.repeat(&quot;digits&quot;, &quot;DIGIT&quot;, 1, 2147483647);</span>
+<span class="fc" id="L136">        g.repeat(&quot;entries&quot;, &quot;entry&quot;, 0, 2147483647);</span>
+<span class="fc" id="L137">        g.repeat(&quot;sequence_tail&quot;, &quot;sequence_tail_element&quot;, 1, 2147483647);</span>
+<span class="fc" id="L138">        g.repeat(&quot;string_body&quot;, &quot;NON_QUOTE&quot;, 0, 2147483647);</span>
+<span class="fc" id="L139">        g.sequence(&quot;alias_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;name&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L140">        g.sequence(&quot;anon_and_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;AND&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L141">        g.sequence(&quot;anon_character_rule&quot;, &quot;class&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L142">        g.sequence(&quot;anon_choice_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;choices&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L143">        g.sequence(&quot;anon_not_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;NOT&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L144">        g.sequence(&quot;anon_option_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;QUESTION&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L145">        g.sequence(&quot;anon_plus_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;PLUS&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L146">        g.sequence(&quot;anon_repetition_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;CURLY_BRACKET_L&quot;, &quot;WS&quot;, &quot;repetition_minimum&quot;, &quot;WS&quot;, &quot;COMMA&quot;, &quot;WS&quot;, &quot;repetition_maximum&quot;, &quot;WS&quot;, &quot;CURLY_BRACKET_R&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L147">        g.sequence(&quot;anon_sequence_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;sequence&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L148">        g.sequence(&quot;anon_sequencedlr_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;base&quot;, &quot;WS&quot;, &quot;COLON&quot;, &quot;WS&quot;, &quot;shared&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L149">        g.sequence(&quot;anon_star_rule&quot;, &quot;PAREN_L&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;STAR&quot;, &quot;WS&quot;, &quot;PAREN_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L150">        g.sequence(&quot;anon_string_rule&quot;, &quot;string&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L151">        g.sequence(&quot;assignee&quot;, &quot;NAME_HEAD&quot;, &quot;NAME_TAIL&quot;);</span>
+<span class="fc" id="L152">        g.sequence(&quot;base&quot;, &quot;item&quot;);</span>
+<span class="fc" id="L153">        g.sequence(&quot;character_literal&quot;, &quot;SINGLE_QUOTE&quot;, &quot;ANY_CHAR&quot;, &quot;SINGLE_QUOTE&quot;);</span>
+<span class="fc" id="L154">        g.sequence(&quot;character_maximum&quot;, &quot;@0&quot;, &quot;@1&quot;);</span>
+<span class="fc" id="L155">        g.sequence(&quot;character_minimum&quot;, &quot;@2&quot;, &quot;@3&quot;);</span>
+<span class="fc" id="L156">        g.sequence(&quot;character_numeric&quot;, &quot;digits&quot;, &quot;LETTER_C&quot;);</span>
+<span class="fc" id="L157">        g.sequence(&quot;choice_head&quot;, &quot;item&quot;);</span>
+<span class="fc" id="L158">        g.sequence(&quot;choice_tail_element&quot;, &quot;WS&quot;, &quot;FORWARD_SLASH&quot;, &quot;WS&quot;, &quot;item&quot;);</span>
+<span class="fc" id="L159">        g.sequence(&quot;choices&quot;, &quot;choice_head&quot;, &quot;choice_tail&quot;);</span>
+<span class="fc" id="L160">        g.sequence(&quot;combination_cc&quot;, &quot;SQUARE_BRACKET_L&quot;, &quot;WS&quot;, &quot;classes&quot;, &quot;WS&quot;, &quot;SQUARE_BRACKET_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L161">        g.sequence(&quot;directive_export_parser&quot;, &quot;EXPORT_PARSER&quot;, &quot;WS&quot;, &quot;string&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L162">        g.sequence(&quot;directive_export_visitor&quot;, &quot;EXPORT_VISITOR&quot;, &quot;WS&quot;, &quot;string&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L163">        g.sequence(&quot;directive_hide&quot;, &quot;HIDE&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L164">        g.sequence(&quot;directive_package&quot;, &quot;PACKAGE&quot;, &quot;WS&quot;, &quot;string&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L165">        g.sequence(&quot;directive_parser&quot;, &quot;PARSER&quot;, &quot;WS&quot;, &quot;string&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L166">        g.sequence(&quot;directive_root&quot;, &quot;ROOT&quot;, &quot;WS&quot;, &quot;name&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L167">        g.sequence(&quot;directive_trace&quot;, &quot;TRACE&quot;, &quot;WS&quot;, &quot;digits&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L168">        g.sequence(&quot;directive_visitor&quot;, &quot;VISITOR&quot;, &quot;WS&quot;, &quot;string&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L169">        g.sequence(&quot;exclusion_cc&quot;, &quot;SQUARE_BRACKET_L&quot;, &quot;WS&quot;, &quot;class&quot;, &quot;WS&quot;, &quot;XOR&quot;, &quot;WS&quot;, &quot;class&quot;, &quot;WS&quot;, &quot;SQUARE_BRACKET_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L170">        g.sequence(&quot;multi_element_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;sequence&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L171">        g.sequence(&quot;name&quot;, &quot;NAME_HEAD&quot;, &quot;NAME_TAIL&quot;);</span>
+<span class="fc" id="L172">        g.sequence(&quot;named_and_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;AND&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L173">        g.sequence(&quot;named_character_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;class&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L174">        g.sequence(&quot;named_choice_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;choices&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L175">        g.sequence(&quot;named_not_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;NOT&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L176">        g.sequence(&quot;named_option_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;QUESTION&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L177">        g.sequence(&quot;named_plus_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;PLUS&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L178">        g.sequence(&quot;named_repetition_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;CURLY_BRACKET_L&quot;, &quot;WS&quot;, &quot;repetition_minimum&quot;, &quot;WS&quot;, &quot;COMMA&quot;, &quot;WS&quot;, &quot;repetition_maximum&quot;, &quot;WS&quot;, &quot;CURLY_BRACKET_R&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L179">        g.sequence(&quot;named_sequencedlr_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;base&quot;, &quot;WS&quot;, &quot;COLON&quot;, &quot;WS&quot;, &quot;shared&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L180">        g.sequence(&quot;named_star_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;item&quot;, &quot;WS&quot;, &quot;STAR&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L181">        g.sequence(&quot;named_string_rule&quot;, &quot;assignee&quot;, &quot;WS&quot;, &quot;EQUALS&quot;, &quot;WS&quot;, &quot;string&quot;, &quot;WS&quot;, &quot;SEMICOLON&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L182">        g.sequence(&quot;negation_cc&quot;, &quot;SQUARE_BRACKET_L&quot;, &quot;WS&quot;, &quot;XOR&quot;, &quot;WS&quot;, &quot;classes&quot;, &quot;WS&quot;, &quot;SQUARE_BRACKET_R&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L183">        g.sequence(&quot;pound_comment&quot;, &quot;POUND&quot;, &quot;comment_body&quot;, &quot;NEWLINE&quot;);</span>
+<span class="fc" id="L184">        g.sequence(&quot;range_cc&quot;, &quot;character&quot;, &quot;WS&quot;, &quot;DASH&quot;, &quot;WS&quot;, &quot;character&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L185">        g.sequence(&quot;repetition_maximum&quot;, &quot;digits&quot;);</span>
+<span class="fc" id="L186">        g.sequence(&quot;repetition_minimum&quot;, &quot;digits&quot;);</span>
+<span class="fc" id="L187">        g.sequence(&quot;root&quot;, &quot;WS&quot;, &quot;entries&quot;, &quot;WS&quot;, &quot;END&quot;);</span>
+<span class="fc" id="L188">        g.sequence(&quot;sequence&quot;, &quot;sequence_head&quot;, &quot;sequence_tail&quot;);</span>
+<span class="fc" id="L189">        g.sequence(&quot;sequence_head&quot;, &quot;item&quot;);</span>
+<span class="fc" id="L190">        g.sequence(&quot;sequence_tail_element&quot;, &quot;WS&quot;, &quot;COMMA&quot;, &quot;WS&quot;, &quot;item&quot;);</span>
+<span class="fc" id="L191">        g.sequence(&quot;single_cc&quot;, &quot;character&quot;, &quot;WS&quot;);</span>
+<span class="fc" id="L192">        g.sequence(&quot;slash_comment&quot;, &quot;DOUBLE_SLASH&quot;, &quot;comment_body&quot;, &quot;NEWLINE&quot;);</span>
+<span class="fc" id="L193">        g.sequence(&quot;string&quot;, &quot;QUOTE&quot;, &quot;string_body&quot;, &quot;QUOTE&quot;);</span>
+<span class="fc" id="L194">        g.str(&quot;@0&quot;, &quot;MAX&quot;);</span>
+<span class="fc" id="L195">        g.str(&quot;@2&quot;, &quot;MIN&quot;);</span>
+<span class="fc" id="L196">        g.str(&quot;DOUBLE_SLASH&quot;, &quot;//&quot;);</span>
+<span class="fc" id="L197">        g.str(&quot;EXPORT_PARSER&quot;, &quot;%export-parser&quot;);</span>
+<span class="fc" id="L198">        g.str(&quot;EXPORT_VISITOR&quot;, &quot;%export-visitor&quot;);</span>
+<span class="fc" id="L199">        g.str(&quot;HIDE&quot;, &quot;%hide&quot;);</span>
+<span class="fc" id="L200">        g.str(&quot;PACKAGE&quot;, &quot;%package&quot;);</span>
+<span class="fc" id="L201">        g.str(&quot;PARSER&quot;, &quot;%parser&quot;);</span>
+<span class="fc" id="L202">        g.str(&quot;ROOT&quot;, &quot;%root&quot;);</span>
+<span class="fc" id="L203">        g.str(&quot;TRACE&quot;, &quot;%trace&quot;);</span>
+<span class="fc" id="L204">        g.str(&quot;VISITOR&quot;, &quot;%visitor&quot;);</span>
+
+        // Specify which rule is the root of the grammar.
+<span class="fc" id="L207">        g.setRoot(&quot;root&quot;);</span>
+
+        // Specify the number of tracing records to store concurrently.
+<span class="fc" id="L210">        g.setTraceCount(1024);</span>
+
+        // Perform the actual construction of the grammar object.
+<span class="fc" id="L213">        return g.build();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ParserOutput parse(final char[] input)
+    {
+<span class="fc" id="L222">        return grammar.newParser().parse(input);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ParserOutput parse(final String input)
+    {
+<span class="fc" id="L231">        return parse(input.toCharArray());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

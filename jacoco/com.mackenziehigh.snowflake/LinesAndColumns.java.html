@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinesAndColumns.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">LinesAndColumns.java</span></div><h1>LinesAndColumns.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake;
+
+/**
+ * An instance of this class computes line-numbers and column-numbers regarding a character-array.
+ * 
+ * @author Michael Mackenzie High
+ */
+public final class LinesAndColumns 
+{
+    
+    /**
+     * An element in this array is the line-number of the character at the 
+     * equivalently indexed array element in the input. 
+     */
+    final int[] lineNumbers;
+    
+    /**
+     * An element in this array is the column-number of the character at the
+     * equivalently indexed array element in the input.
+     */
+    final int[] columnNumbers;
+    
+    /**
+     * Sole Constructor.
+     * 
+     * @param input is the input itself. 
+     * @param newline is the newline that separates lines in the input.
+     * @throws UnsupportedOperationException if [newline] is not supported.
+     */
+    public LinesAndColumns(final char[] input,
+                           final NewlineStyles newline)
+<span class="fc" id="L48">    {</span>
+<span class="fc" id="L49">        Utils.checkNonNull(input);</span>
+<span class="fc" id="L50">        Utils.checkNonNull(newline);</span>
+        
+<span class="fc" id="L52">        this.lineNumbers = new int[input.length];</span>
+        
+<span class="fc" id="L54">        this.columnNumbers = new int[input.length];</span>
+        
+<span class="fc bfc" id="L56" title="All 4 branches covered.">        switch(newline)</span>
+        {
+<span class="fc" id="L58">            case CR: compute(input, '\r'); break;  </span>
+            
+<span class="fc" id="L60">            case LF: compute(input, '\n'); break;</span>
+            
+<span class="fc" id="L62">            case CR_LF: compute(input, '\r', '\n'); break;</span>
+            
+<span class="fc" id="L64">            default: throw new UnsupportedOperationException(&quot;Unsupported Newline Type&quot;);</span>
+        }                
+<span class="fc" id="L66">    }</span>
+    
+    /**
+     * This method computes the line-number and column-number information,
+     * if the newline is a single character. 
+     * 
+     * @param input is the input that contains the lines and columns.
+     * @param newline is the newline character itself. 
+     */
+    final void compute(final char[] input, 
+                       final char newline)
+    {
+<span class="fc" id="L78">        int lines = 1;</span>
+        
+<span class="fc" id="L80">        int columns = 1;</span>
+        
+<span class="fc" id="L82">        boolean condition = false;</span>
+        
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for(int i = 0; i &lt; input.length; i++)</span>
+        {
+<span class="fc" id="L86">            lineNumbers[i] = lines;</span>
+            
+<span class="fc" id="L88">            columnNumbers[i] = columns;</span>
+            
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            condition = newline == input[i];</span>
+            
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            lines += condition ? 1 : 0;</span>
+            
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            columns = condition ? 1 : ++columns;</span>
+        }       
+<span class="fc" id="L96">    }</span>
+    
+    /**
+     * This method computes the line-number and column-number information,
+     * if the newline is a two character sequence.
+     * 
+     * @param input is the input that contains the lines and columns.
+     * @param newlineP1 is the first character in the newline sequence.
+     * @param newlineP2 is the second character in the newline sequence. 
+     */
+    final void compute(final char[] input,
+                       final char newlineP1,
+                       final char newlineP2)
+    {
+<span class="fc" id="L110">        int lines = 1;</span>
+        
+<span class="fc" id="L112">        int columns = 2;</span>
+        
+<span class="fc" id="L114">        boolean condition = false;</span>
+        
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if(input.length &gt; 0)</span>
+        {
+<span class="fc" id="L118">            lineNumbers[0] = 1;</span>
+            
+<span class="fc" id="L120">            columnNumbers[0] = 1;</span>
+        }
+        
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for(int i = 1; i &lt; input.length; i++)</span>
+        {
+<span class="fc" id="L125">            lineNumbers[i] = lines;</span>
+            
+<span class="fc" id="L127">            columnNumbers[i] = columns;</span>
+            
+<span class="pc bpc" id="L129" title="1 of 4 branches missed.">            condition = input[i - 1] == newlineP1 &amp;&amp; input[i] == newlineP2;</span>
+            
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            lines += condition ? 1 : 0;</span>
+            
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            columns = condition ? 1 : ++columns;           </span>
+        }        
+<span class="fc" id="L135">    }   </span>
+    
+    /**
+     * This method returns an array that contains exactly one element, 
+     * a line-number, for each character in the input that was used to 
+     * create this object.
+     * 
+     * @return an array of the line-numbers for the input that was used to 
+     *   create this object. The returned array has a unique identity per 
+     *   instance of this object, but not per invocation of this method.
+     */
+    public int[] lineNumbers()
+    {
+<span class="fc" id="L148">        return lineNumbers;</span>
+    }
+    
+    /**
+     * This method returns an array that contains exactly one element, 
+     * a column-number, for each character in the input that was used 
+     * to create this object.
+     * 
+     * @return an array of the column-numbers for the input that was used 
+     *   to create this object. The returned array has a unique identity 
+     *   per instance of this object, but not per invocation of this method.
+     */    
+    public int[] columnNumbers()
+    {
+<span class="fc" id="L162">        return columnNumbers;</span>
+    }
+            
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

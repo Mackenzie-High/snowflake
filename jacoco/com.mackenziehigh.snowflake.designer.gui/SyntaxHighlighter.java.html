@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SyntaxHighlighter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.designer.gui</a> &gt; <span class="el_source">SyntaxHighlighter.java</span></div><h1>SyntaxHighlighter.java</h1><pre class="source lang-java linenums">/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.mackenziehigh.snowflake.designer.gui;
+
+import java.awt.Color;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JTextPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+
+/**
+ * Under Development.
+ *
+ * An instance of this class is a listener that performs syntax-highlighting of Snowflake code.
+ *
+ * @author Mackenzie High
+ */
+public final class SyntaxHighlighter
+        extends DefaultStyledDocument
+{
+    /**
+     * This is the textbox that contains the text to color.
+     */
+    private final JTextPane textbox;
+
+    private final int delay;
+
+    private final Pattern pattern;
+
+<span class="nc" id="L39">    private final AtomicBoolean highlighting_needed = new AtomicBoolean();</span>
+
+    private final Thread thread;
+
+<span class="nc" id="L43">    private final Runnable highlighter = new Runnable()</span>
+<span class="nc" id="L44">    {</span>
+        public void run()
+        {
+            while (true)
+            {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">                if (highlighting_needed.get())</span>
+                {
+<span class="nc" id="L51">                    highlight();</span>
+
+<span class="nc" id="L53">                    highlighting_needed.set(false);</span>
+                }
+                try
+                {
+<span class="nc" id="L57">                    Thread.sleep(delay);</span>
+                }
+<span class="nc" id="L59">                catch (InterruptedException ex)</span>
+                {
+<span class="nc" id="L61">                    Logger.getLogger(SyntaxHighlighter.class.getName()).log(Level.WARNING, null, ex);</span>
+<span class="nc" id="L62">                }</span>
+            }
+        }
+
+        public void highlight()
+        {
+<span class="nc" id="L68">            Style style1 = textbox.addStyle(&quot;Default&quot;, null);</span>
+<span class="nc" id="L69">            StyleConstants.setForeground(style1, Color.BLACK);</span>
+<span class="nc" id="L70">            setCharacterAttributes(0, textbox.getText().length(), textbox.getStyle(&quot;Default&quot;), true);</span>
+
+<span class="nc" id="L72">            final Matcher matcher = pattern.matcher(textbox.getText());</span>
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            while (matcher.find())</span>
+            {
+<span class="nc" id="L76">                final int start = matcher.start();</span>
+
+<span class="nc" id="L78">                final int end = matcher.end();</span>
+
+<span class="nc" id="L80">                final int length = end - start;</span>
+
+<span class="nc" id="L82">                Style style = textbox.addStyle(&quot;Red&quot;, null);</span>
+<span class="nc" id="L83">                StyleConstants.setForeground(style, Color.RED);</span>
+
+<span class="nc" id="L85">                setCharacterAttributes(start, length, textbox.getStyle(&quot;Red&quot;), true);</span>
+<span class="nc" id="L86">            }</span>
+<span class="nc" id="L87">        }</span>
+    };
+
+    /**
+     * Sole Constructor.
+     *
+     * @param textbox is the textbox that contains the text to color.
+     * @param delay is the number of milliseconds to wait, between highlighting passes.
+     */
+    public SyntaxHighlighter(final JTextPane textbox,
+                             final int delay)
+<span class="nc" id="L98">    {</span>
+<span class="nc" id="L99">        this.textbox = textbox;</span>
+<span class="nc" id="L100">        this.delay = delay;</span>
+
+<span class="nc" id="L102">        this.pattern = Pattern.compile(&quot;[#]&quot;);</span>
+
+<span class="nc" id="L104">        this.thread = new Thread(this.highlighter, &quot;Syntax Highlighter&quot;);</span>
+<span class="nc" id="L105">    }</span>
+
+    /**
+     * Invoke this method to activate the syntax-highlighting.
+     */
+    public void start()
+    {
+//        thread.start();
+<span class="nc" id="L113">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void remove(int offs,
+                       int len)
+            throws BadLocationException
+    {
+<span class="nc" id="L123">        super.remove(offs, len);</span>
+
+<span class="nc" id="L125">        this.highlighting_needed.set(true);</span>
+<span class="nc" id="L126">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void insertString(int offset,
+                             String str,
+                             AttributeSet a)
+            throws BadLocationException
+    {
+<span class="nc" id="L137">        super.insertString(offset, str, a);</span>
+
+<span class="nc" id="L139">        this.highlighting_needed.set(true);</span>
+<span class="nc" id="L140">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

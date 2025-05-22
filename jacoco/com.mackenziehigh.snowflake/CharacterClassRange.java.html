@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CharacterClassRange.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">CharacterClassRange.java</span></div><h1>CharacterClassRange.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake;
+
+/**
+ * An instance of this class is a character-class that specifies an inclusive range of characters.
+ * 
+ * @author Michael Mackenzie High
+ */
+final class CharacterClassRange implements ICharacterClass
+{
+    /**
+     * This is the character, in the range, whose numeric form is least. 
+     */
+    final char minimum;
+
+    /**
+     * This is the character, in the range, whose numeric form is greatest. 
+     */
+    final char maximum;
+    
+    /**
+     * Sole Constructor. 
+     * 
+     * @param minimum is the lowest character in the range.
+     * @param maximum is the greatest character in the range. 
+     * @throws IllegalArgumentException if &lt;code&gt;minimum &amp;gt; maximum&lt;/code&gt;.
+     */
+    public CharacterClassRange(final char minimum,
+                               final char maximum)
+<span class="fc" id="L45">    {</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if(minimum &gt; maximum) { throw new IllegalArgumentException(&quot;minimum &gt; maximum&quot;); }</span>
+        
+<span class="fc" id="L48">        this.minimum = minimum;</span>
+<span class="fc" id="L49">        this.maximum = maximum;</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+<span class="fc bfc" id="L56" title="All 4 branches covered.">    public boolean match(final char c) { return minimum &lt;= c &amp;&amp; c &lt;= maximum; }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

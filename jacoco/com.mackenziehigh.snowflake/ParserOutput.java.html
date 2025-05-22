@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParserOutput.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">ParserOutput.java</span></div><h1>ParserOutput.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.mackenziehigh.snowflake;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+/**
+ * An instance of this class is the output of a parser.
+ *
+ * @author Mackenzie High
+ */
+public final class ParserOutput
+{
+    /**
+     * This is the parse-tree, if parsing was successful; otherwise, this field is null.
+     */
+    final ITreeNode parse_tree;
+
+    /**
+     * This is the object that recorded the parsing-attempt.
+     */
+    final Tracer tracer;
+
+    /**
+     * This is the farthest location that parsing reached.
+     */
+    final int farthest_position;
+
+    /**
+     * This is the input that the parser attempted to parse.
+     */
+    final char[] input;
+
+    /**
+     * Sole Constructor.
+     *
+     * @param input          is the input that the parser tried to parse.
+     * @param parse_tree     is the parse-tree that was created by the parser,
+     *                       or null, if parsing was unsuccessful.
+     * @param tracer         is the object that recorded the parsing-attempt.
+     * @param farthest_match is the farthest location that parsing reached.
+     */
+    ParserOutput(final char[] input,
+                 final ITreeNode parse_tree,
+                 final Tracer tracer,
+                 final int farthest_position)
+<span class="fc" id="L61">    {</span>
+<span class="fc" id="L62">        Utils.checkNonNull(input);</span>
+<span class="fc" id="L63">        Utils.checkNonNull(tracer);</span>
+
+<span class="fc" id="L65">        this.input = input;</span>
+<span class="fc" id="L66">        this.parse_tree = parse_tree;</span>
+<span class="fc" id="L67">        this.tracer = tracer;</span>
+<span class="fc" id="L68">        this.farthest_position = farthest_position;</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * This method determines whether parsing succeeded.
+     *
+     * @return true, if and only if, parsing was successful.
+     */
+    public boolean success()
+    {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        return parse_tree != null;</span>
+    }
+
+    /**
+     * This method returns the farthest location that parsing reached.
+     *
+     * &lt;p&gt;The returned position is often useful, when searching for syntax-errors.&lt;/p&gt;
+     *
+     * @return the aforedescribed location, which is the index relating to the parser's input.
+     */
+    public int lengthOfConsumption()
+    {
+<span class="fc" id="L90">        return farthest_position;</span>
+    }
+
+    /**
+     * This method returns a record describing stages of the parsing-attempt.
+     *
+     * &lt;p&gt;The returned list may be useful for debugging grammar and/or finding syntax-errors.&lt;/p&gt;
+     *
+     * @return the aforedescribed record.
+     */
+    public Trace trace()
+    {
+<span class="fc" id="L102">        return tracer.output();</span>
+    }
+
+    /**
+     * This method retrieves and returns the parse-tree created by this parser.
+     *
+     * &lt;p&gt;The returned value is actually the root node in the parse-tree.&lt;/p&gt;
+     *
+     * @return the parse-tree created by the parser, or null, if no such parse-tree exists.
+     */
+    public ITreeNode parseTree()
+    {
+<span class="fc" id="L114">        return parse_tree;</span>
+    }
+
+    /**
+     * This method prints a message describing the status of the output.
+     *
+     * &lt;p&gt; If
+     * &lt;code&gt;sucess() == true&lt;/code&gt;, then the string &quot;Parsing Succeeded!&quot; is printed. &lt;/p&gt;
+     *
+     * &lt;p&gt; If
+     * &lt;code&gt;sucess() == false&lt;/code&gt;, then the string &quot;Parsing Failed!&quot; is printed. &lt;/p&gt;
+     *
+     * @param writer   is the writer to write to.
+     * @param newline  is the style of the newlines in the parser's input.
+     * @param estimate is true, if and only if the line and column numbers are to be written also.
+     * @param exact    is true, if and only if the length of consumption is to be written also.
+     * @param trace    is true, if and only if the trace is to be written also.
+     */
+    public void print(final PrintWriter writer,
+                      final NewlineStyles newline,
+                      final boolean estimate,
+                      final boolean exact,
+                      final boolean trace)
+    {
+
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (success())</span>
+        {
+<span class="fc" id="L141">            writer.println(&quot;Parsing Succeeded!&quot;);</span>
+        }
+        else
+        {
+<span class="fc" id="L145">            writer.println(&quot;Parsing Failed!&quot;);</span>
+
+<span class="fc" id="L147">            final int position = lengthOfConsumption();</span>
+
+<span class="fc bfc" id="L149" title="All 2 branches covered.">            if (estimate)</span>
+            {
+<span class="fc" id="L151">                final LinesAndColumns finder = new LinesAndColumns(input, newline);</span>
+
+<span class="fc bfc" id="L153" title="All 2 branches covered.">                final int line = position &gt; 0 ? finder.lineNumbers()[position] : 1;</span>
+
+<span class="fc bfc" id="L155" title="All 2 branches covered.">                final int column = position &gt; 0 ? finder.columnNumbers()[position] : 1;</span>
+
+<span class="fc" id="L157">                writer.println();</span>
+<span class="fc" id="L158">                writer.print(&quot;Syntax Error Position (Approximate):&quot;);</span>
+<span class="fc" id="L159">                writer.println();</span>
+<span class="fc" id="L160">                writer.print(&quot;  Line: #&quot;);</span>
+<span class="fc" id="L161">                writer.println(line);</span>
+<span class="fc" id="L162">                writer.print(&quot;  Column: #&quot;);</span>
+<span class="fc" id="L163">                writer.println(column);</span>
+            }
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            if (exact)</span>
+            {
+<span class="fc" id="L168">                writer.println();</span>
+<span class="fc" id="L169">                writer.print(&quot;Length of Consumption: &quot;);</span>
+<span class="fc" id="L170">                writer.println(lengthOfConsumption());</span>
+            }
+
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (trace)</span>
+            {
+<span class="fc" id="L175">                writer.println();</span>
+<span class="fc" id="L176">                tracer.output().print(writer);</span>
+            }
+        }
+<span class="fc" id="L179">    }</span>
+
+    /**
+     * Convenience overload of:
+     * &lt;code&gt;print(PrintWriter, boolean, boolean, boolean)&lt;/code&gt;.
+     *
+     * &lt;p&gt;See the aforementioned method for more details.&lt;/p&gt;
+     *
+     * @param stream   is the stream to write to.
+     * @param newline  is the style of the newlines in the parser's input.
+     * @param estimate is true, if and only if the line and column numbers are to be written.
+     * @param exact    is true, if and only if the length of consumption is to be written.
+     * @param trace    is true, if and only if the trace is to be written.
+     */
+    public void print(final PrintStream stream,
+                      final NewlineStyles newline,
+                      final boolean estimate,
+                      final boolean exact,
+                      final boolean trace)
+    {
+<span class="fc" id="L199">        final PrintWriter writer = new PrintWriter(stream);</span>
+
+<span class="fc" id="L201">        print(writer, newline, estimate, exact, trace);</span>
+
+<span class="fc" id="L203">        writer.flush();</span>
+<span class="fc" id="L204">    }</span>
+
+    /**
+     * Equivalent to:
+     * &lt;code&gt;print(writer, NewlineStyles.fromSystem(), estimate, exact, trace)&lt;/code&gt;.
+     */
+    public void print(final PrintWriter writer,
+                      final boolean estimate,
+                      final boolean exact,
+                      final boolean trace)
+    {
+<span class="fc" id="L215">        print(writer, NewlineStyles.fromSystem(), estimate, exact, trace);</span>
+<span class="fc" id="L216">    }</span>
+
+    /**
+     * Equivalent to:
+     * &lt;code&gt;print(stream, NewlineStyles.fromSystem(), estimate, exact, trace)&lt;/code&gt;.
+     */
+    public void print(final PrintStream stream,
+                      final boolean estimate,
+                      final boolean exact,
+                      final boolean trace)
+    {
+<span class="fc" id="L227">        print(stream, NewlineStyles.fromSystem(), estimate, exact, trace);</span>
+<span class="fc" id="L228">    }</span>
+
+    /**
+     * This method makes reporting the existence of syntax errors simpler.
+     *
+     * @throws ParsingFailedException &lt;code&gt;if(!this.success())&lt;/code&gt;
+     */
+    public void requireSuccess()
+            throws ParsingFailedException
+    {
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        if (!success())</span>
+        {
+<span class="fc" id="L240">            throw new ParsingFailedException(this);</span>
+        }
+<span class="fc" id="L242">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

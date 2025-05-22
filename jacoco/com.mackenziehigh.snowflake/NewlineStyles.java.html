@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NewlineStyles.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">NewlineStyles.java</span></div><h1>NewlineStyles.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.mackenziehigh.snowflake;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * This enumeration defines constants for various platform-dependent newlines sequences.
+ *
+ * @author Michael Mackenzie High
+ */
+<span class="fc" id="L26">public enum NewlineStyles</span>
+{
+    /**
+     * This constant represents a newline that is a carriage-return (i.e. \r).
+     */
+<span class="fc" id="L31">    CR(&quot;\r&quot;),</span>
+    /**
+     * This constant represents a newline that is a line-feed (i.e. \n).
+     */
+<span class="fc" id="L35">    LF(&quot;\n&quot;),</span>
+    /**
+     * This constant represents a newline that is a carriage-return followed by a line-feed.
+     */
+<span class="fc" id="L39">    CR_LF(&quot;\r\n&quot;),</span>
+    /**
+     * This constant indicates that the newline-style is not currently supported.
+     */
+<span class="fc" id="L43">    UNSUPPORTED(&quot;&quot;);</span>
+
+    /**
+     * This is the newline represented by this constant object.
+     */
+    private final String newline;
+
+    /**
+     * Sole Constructor.
+     *
+     * @param newline is the represented newline.
+     */
+    private NewlineStyles(final String newline)
+<span class="fc" id="L56">    {</span>
+<span class="fc" id="L57">        this.newline = newline;</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * This method retrieves a string containing the newline represented by this style.
+     *
+     * &lt;p&gt;
+     * If this style is the
+     * &lt;code&gt;UNSUPPORTED&lt;/code&gt; style, then an empty string is returned.
+     * &lt;/p&gt;
+     *
+     * @return the represented newline.
+     */
+    public String newline()
+    {
+<span class="fc" id="L72">        return newline;</span>
+    }
+
+    /**
+     * This method determines the best-matching newline-style constant for a given newline.
+     *
+     * &lt;p&gt;The
+     * &lt;code&gt;UNSUPPORTED&lt;/code&gt; style is returned, if the newline is unrecognized.&lt;/p&gt;
+     *
+     * @param newline is the newline that is represented by the returned constant.
+     * @return a constant that represent the given newline.
+     */
+    public static NewlineStyles fromNewline(final String newline)
+    {
+<span class="fc" id="L86">        final Map&lt;String, NewlineStyles&gt; styles = new TreeMap&lt;String, NewlineStyles&gt;();</span>
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (NewlineStyles style : NewlineStyles.values())</span>
+        {
+<span class="fc" id="L90">            styles.put(style.newline(), style);</span>
+        }
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        final NewlineStyles result = styles.containsKey(newline)</span>
+<span class="fc" id="L94">                ? styles.get(newline) : UNSUPPORTED;</span>
+
+<span class="fc" id="L96">        return result;</span>
+    }
+
+    /**
+     * This method retrieves the best-matching newline-style for the current computer system.
+     *
+     * &lt;p&gt;The platform newline is found using
+     * &lt;code&gt;System.getProperty(&quot;line.separator&quot;).&lt;/code&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;The
+     * &lt;code&gt;UNSUPPORTED&lt;/code&gt; style is returned, if the newline is unrecognized.&lt;/p&gt;
+     *
+     * @return the aforedescribed newline-style.
+     */
+    public static NewlineStyles fromSystem()
+    {
+<span class="fc" id="L112">        final String line_separator = System.getProperty(&quot;line.separator&quot;);</span>
+
+<span class="fc" id="L114">        final NewlineStyles result = fromNewline(line_separator);</span>
+
+<span class="fc" id="L116">        return result;</span>
+    }
+
+    /**
+     * This method determines the newline style given the input that will be parsed.
+     *
+     * @param input is the input that will be parsed.
+     * @param expected is the default new line style.
+     * @return the newline style that is present in the input.
+     * If no newline style is detected in the input, then return the expected newline style.
+     */
+    public static NewlineStyles fromGuess(final String input,
+                                          final NewlineStyles expected)
+    {
+<span class="fc" id="L130">        Utils.checkNonNull(input);</span>
+
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (input.contains(&quot;\r\n&quot;))</span>
+        {
+<span class="fc" id="L134">            return CR_LF;</span>
+        }
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        else if (input.contains(&quot;\r&quot;))</span>
+        {
+<span class="fc" id="L138">            return CR;</span>
+        }
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        else if (input.contains(&quot;\n&quot;))</span>
+        {
+<span class="fc" id="L142">            return LF;</span>
+        }
+        else
+        {
+<span class="fc" id="L146">            return expected;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

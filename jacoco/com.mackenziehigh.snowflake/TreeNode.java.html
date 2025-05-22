@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TreeNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">TreeNode.java</span></div><h1>TreeNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake;
+
+/**
+ * An instance of this class is a node in the parse-tree data-structure created via parsing. 
+ * 
+ * @author Michael Mackenzie High
+ */
+<span class="fc" id="L24">public final class TreeNode extends AbstractTreeNode</span>
+{
+
+    /**
+     * This field becomes true, when this object is initialized.
+     */
+<span class="fc" id="L30">    private boolean initialized = false;</span>
+    
+    /**
+     * This array stores the children of this tree-node, if any.
+     * 
+     * &lt;p&gt;This field is set during the initialization of this object.&lt;/p&gt;
+     */
+    private TreeNode[] children;
+
+    /**
+     * This is the rule that caused this node to be created.
+     * 
+     * &lt;p&gt;This field is set during the initialization of this object.&lt;/p
+     */
+    private Rule rule;
+
+    /**
+     * This is a reference to the character-array being parsed by the parser.
+     * 
+     * &lt;p&gt;This field is set during the initialization of this object.&lt;/p
+     */
+    private char[] input;
+
+    /**
+     * This is the index of the first character in the matched region of input.
+     * 
+     * &lt;p&gt;This field is set during the initialization of this object.&lt;/p
+     */
+    private int textStart;
+
+    /**
+     * This is the length of the matched region of input.
+     * 
+     * &lt;p&gt;This field is set during the initialization of this object.&lt;/p
+     */
+    private int textLength;
+    
+    /** 
+     * This method initializes this object.
+     * 
+     * @param rule is the rule that is creating this tree-node.
+     * @param input is the &lt;code&gt;char[]&lt;/code&gt; that is being parsed.
+     * @param start is the index of the first character in the matched region of input.
+     * @param length is the numbers of characters in the matched region of input.
+     * @throws IllegalArgumentException if &lt;code&gt;start &amp;lt; 0&lt;/code&gt;.
+     * @throws IllegalArgumentException if &lt;code&gt;length &amp;lt; 0&lt;/code&gt;.
+     * @throws IllegalArgumentException if &lt;code&gt;(start + length) &amp;gt; input.length&lt;/code&gt;
+     */
+    void initialize(final Rule rule,
+                    final char[] input,
+                    final int start,
+                    final int length)
+    {   
+<span class="fc" id="L83">        Utils.checkNonNull(rule);</span>
+<span class="fc" id="L84">        Utils.checkNonNull(input);</span>
+        
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if(start &lt; 0) { throw new IllegalArgumentException(&quot;start &lt; 0&quot;); }</span>
+        
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if(length &lt; 0) { throw new IllegalArgumentException(&quot;length &lt; 0&quot;); }</span>
+        
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if(start + length &gt; input.length)</span>
+        {
+<span class="fc" id="L92">            throw new IllegalArgumentException(&quot;start + length &gt; input.length&quot;);</span>
+        }
+     
+<span class="fc" id="L95">        this.initialized = true;</span>
+<span class="fc" id="L96">        this.rule = rule;</span>
+<span class="fc" id="L97">        this.input = input;</span>
+<span class="fc" id="L98">        this.textStart = start;</span>
+<span class="fc" id="L99">        this.textLength = length; </span>
+<span class="fc" id="L100">    }</span>
+    
+    /**
+     * This method initializes this object.
+     * 
+     * @param rule is the rule that is creating this tree-node.
+     * @param input is the &lt;code&gt;char[]&lt;/code&gt; that is being parsed.
+     * @param children are the child-nodes of this node in the syntax-tree.
+     * @throws IllegalArgumentException if &lt;code&gt;children.length == 0&lt;/code&gt;.
+     */    
+    void initialize(final Rule rule,
+                    final char[] input,
+                    final TreeNode[] children)
+    {
+<span class="fc" id="L114">        Utils.checkNonNull(rule);</span>
+<span class="fc" id="L115">        Utils.checkNonNull(input);</span>
+<span class="fc" id="L116">        Utils.checkNonNullArray(children);</span>
+        
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if(children.length == 0) { throw new IllegalArgumentException(&quot;children.length == 0&quot;); }</span>
+        
+<span class="fc" id="L120">        final TreeNode last = children[children.length - 1];</span>
+        
+<span class="fc" id="L122">        this.initialized = true;</span>
+<span class="fc" id="L123">        this.rule = rule;</span>
+<span class="fc" id="L124">        this.input = input;</span>
+<span class="fc" id="L125">        this.children = children;</span>
+<span class="fc" id="L126">        this.textStart = children[0].textStart;</span>
+<span class="fc" id="L127">        this.textLength = (last.start() + last.length()) - this.textStart;</span>
+<span class="fc" id="L128">    }    </span>
+
+    private void requireInitialization() 
+    { 
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if(!initialized) { throw new IllegalStateException(&quot;uninitialized object&quot;); } </span>
+<span class="fc" id="L133">    }</span>
+    
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override 
+    public final TreeNode[] children()
+    {
+<span class="fc" id="L141">        requireInitialization();</span>
+        
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        return children == null </span>
+<span class="fc" id="L144">             ? new TreeNode[0] </span>
+<span class="fc" id="L145">             : children;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public final String rule()
+    {
+<span class="fc" id="L154">        requireInitialization();</span>
+        
+<span class="fc" id="L156">        return rule.name();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public final int start()
+    {
+<span class="fc" id="L165">        requireInitialization();</span>
+        
+<span class="fc" id="L167">        return textStart;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public final int length()
+    {
+<span class="fc" id="L176">        requireInitialization();</span>
+        
+<span class="fc" id="L178">        return textLength;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public final char[] input()
+    {
+<span class="fc" id="L187">        requireInitialization();</span>
+        
+<span class="fc" id="L189">        return input;</span>
+    }
+    
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public Iterable&lt;ITreeNode&gt; iterableDFS()
+    {
+<span class="fc" id="L198">        requireInitialization();</span>
+        
+<span class="fc" id="L200">        return super.iterableDFS();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public Iterable&lt;ITreeNode&gt; iterableBFS()
+    {
+<span class="fc" id="L209">        requireInitialization();</span>
+        
+<span class="fc" id="L211">        return super.iterableBFS();</span>
+    }    
+    
+    /**
+     * {@inheritDoc}
+     */ 
+    @Override
+    public Iterable&lt;ITreeNode&gt; iterableLeavesFirst()
+    {
+<span class="fc" id="L220">        requireInitialization();</span>
+        
+<span class="fc" id="L222">        return super.iterableLeavesFirst();</span>
+    } 
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

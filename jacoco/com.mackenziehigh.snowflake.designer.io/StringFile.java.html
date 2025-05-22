@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringFile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.designer.io</a> &gt; <span class="el_source">StringFile.java</span></div><h1>StringFile.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake.designer.io;
+
+import com.mackenziehigh.snowflake.NewlineStyles;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+/**
+ * An instance of this class represents a source-code file. 
+ * 
+ * @author Michael Mackenzie High
+ */
+<span class="nc" id="L37">public final class StringFile</span>
+{
+    
+    /**
+     * This is the file-path that the source-code file must be written to.
+     * This path may be relative. 
+     */
+    private File filepath;
+    
+    /**
+     * This is the source-code that the file does/will contain. 
+     */
+    private String sourceCode;
+
+    public File getFilepath() 
+    {
+<span class="nc" id="L53">        return filepath;</span>
+    }
+
+    public void setFilepath(File filepath)
+    {
+<span class="nc" id="L58">        this.filepath = filepath;</span>
+<span class="nc" id="L59">    }</span>
+
+    public String getSourceCode()
+    {
+<span class="nc" id="L63">        return sourceCode;</span>
+    }
+
+    public void setSourceCode(String sourceCode)
+    {
+<span class="nc" id="L68">        this.sourceCode = sourceCode;</span>
+<span class="nc" id="L69">    }  </span>
+    
+    public static void writeZipFile(final File file, 
+                                    final List&lt;StringFile&gt; files) throws FileNotFoundException, 
+                                                                         IOException
+    {
+<span class="nc" id="L75">        FileOutputStream fos = new FileOutputStream(file);</span>
+        
+<span class="nc" id="L77">        ZipOutputStream zos = new ZipOutputStream(fos);</span>
+        
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for(StringFile source : files)</span>
+        {
+<span class="nc" id="L81">            ZipEntry entry = new ZipEntry(source.filepath.getPath());</span>
+<span class="nc" id="L82">            zos.putNextEntry(entry);</span>
+<span class="nc" id="L83">            zos.write(source.sourceCode.getBytes());</span>
+<span class="nc" id="L84">        }</span>
+        
+<span class="nc" id="L86">        zos.close();</span>
+<span class="nc" id="L87">        fos.close();</span>
+<span class="nc" id="L88">    }</span>
+    
+    public static List&lt;StringFile&gt; readZipFile(final File file) throws FileNotFoundException, 
+                                                                       IOException
+    {
+<span class="nc" id="L93">        final List&lt;StringFile&gt; files = new LinkedList&lt;StringFile&gt;();</span>
+        
+<span class="nc" id="L95">        FileInputStream fos = new FileInputStream(file);</span>
+        
+<span class="nc" id="L97">        ZipInputStream zos = new ZipInputStream(fos);</span>
+        
+        ZipEntry entry;
+        
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        while((entry = zos.getNextEntry()) != null)</span>
+        {
+<span class="nc" id="L103">            File filepath = new File(entry.getName());</span>
+            
+<span class="nc" id="L105">            StringBuilder content = new StringBuilder();</span>
+            
+<span class="nc" id="L107">            Scanner scanner = new Scanner(zos);</span>
+            
+<span class="nc" id="L109">            String newline = NewlineStyles.fromSystem().newline();</span>
+            
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            while(scanner.hasNextLine()) </span>
+            { 
+<span class="nc" id="L113">                content.append(scanner.nextLine()); </span>
+                
+<span class="nc" id="L115">                content.append(newline);</span>
+            }
+            
+<span class="nc" id="L118">            StringFile stringFile = new StringFile();</span>
+            
+<span class="nc" id="L120">            stringFile.filepath = filepath;</span>
+            
+<span class="nc" id="L122">            stringFile.sourceCode = content.toString();</span>
+            
+<span class="nc" id="L124">            files.add(stringFile);</span>
+<span class="nc" id="L125">        }</span>
+        
+<span class="nc" id="L127">        zos.close();</span>
+<span class="nc" id="L128">        fos.close();</span>
+        
+<span class="nc" id="L130">        return files;</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

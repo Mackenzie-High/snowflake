@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RuleChoice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">RuleChoice.java</span></div><h1>RuleChoice.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake;
+
+/**
+ * An instance of this class is a choice-rule.
+ *
+ * @author Michael Mackenzie High
+ */
+final class RuleChoice extends Rule
+{
+    /**
+     * This is the ordered list of options in this choice.
+     */
+    protected Rule[] options;
+
+    /**
+     * Sole Constructor.
+     *
+     * @param name is the name of this rule.
+     */
+<span class="fc" id="L36">    public RuleChoice(final String name) { super(name, true); }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TreeNode match(final State state)
+    {
+<span class="fc" id="L44">        final int start_position = state.begin(this);</span>
+
+<span class="fc" id="L46">        TreeNode option = null;</span>
+        
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        for(Rule r : options)</span>
+        {
+<span class="fc" id="L50">            option = r.match(state);</span>
+
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if(option != null) { break; }</span>
+        }
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if(option == null) { state.fail(this, start_position); return null; }</span>
+
+<span class="fc" id="L57">        final TreeNode retval = new TreeNode();</span>
+
+<span class="fc" id="L59">        retval.initialize(this, state.input, new TreeNode[] { option });</span>
+
+<span class="fc" id="L61">        state.succeed(this);</span>
+
+<span class="fc" id="L63">        return retval;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

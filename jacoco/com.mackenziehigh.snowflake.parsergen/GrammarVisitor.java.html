@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GrammarVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.parsergen</a> &gt; <span class="el_source">GrammarVisitor.java</span></div><h1>GrammarVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.mackenziehigh.snowflake.parsergen;
+
+import com.mackenziehigh.snowflake.ITreeNode;
+import com.mackenziehigh.snowflake.TreeNode;
+import com.mackenziehigh.snowflake.Utils;
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+
+/**
+ * An instance of this class invokes grammar-builder methods, given a grammar's syntax-tree.
+ *
+ * @author Mackenzie High
+ */
+final class GrammarVisitor
+{
+    /**
+     * This stack is used to store intermediate results,
+     * which are the either the names of anonymous rules or character-classes.
+     */
+<span class="fc" id="L37">    final Stack&lt;String&gt; operands = new Stack&lt;String&gt;();</span>
+
+    /**
+     * This is the code-generator that will be notified of each significant visitation.
+     */
+    final ICodeGenerator pigeon;
+
+    /**
+     * This counter is used to create names for anonymous grammar-rules.
+     */
+<span class="fc" id="L47">    int anon_counter = 0;</span>
+
+    /**
+     * This counter is used to create names for character-classes.
+     */
+<span class="fc" id="L52">    int class_counter = 0;</span>
+
+    /**
+     * Sole Constructor.
+     *
+     * @param code is the code-generator that will be invoked by this visitor.
+     */
+    public GrammarVisitor(final ICodeGenerator code)
+<span class="fc" id="L60">    {</span>
+<span class="fc" id="L61">        Utils.checkNonNull(code);</span>
+
+<span class="fc" id="L63">        this.pigeon = code;</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * This method dispatches the visitation of a node to specific visitation methods.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit(ITreeNode node)
+    {
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (&quot;directive_root&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L76">            this.visit_directiveRoot(node);</span>
+        }
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        else if (&quot;directive_hide&quot;.equals(node.rule()))</span>
+        {
+<span class="nc" id="L80">            this.visit_directiveHide(node);</span>
+        }
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        else if (&quot;directive_trace&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L84">            this.visit_directiveTrace(node);</span>
+        }
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        else if (&quot;directive_package&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L88">            this.visit_directivePackage(node);</span>
+        }
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        else if (&quot;directive_parser&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L92">            this.visit_directiveParser(node);</span>
+        }
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        else if (&quot;directive_visitor&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L96">            this.visit_directiveVisitor(node);</span>
+        }
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        else if (&quot;directive_export_parser&quot;.equals(node.rule()))</span>
+        {
+<span class="nc" id="L100">            this.visit_directiveExportParser(node);</span>
+        }
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        else if (&quot;directive_export_visitor&quot;.equals(node.rule()))</span>
+        {
+<span class="nc" id="L104">            this.visit_directiveExportVisitor(node);</span>
+        }
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        else if (&quot;name&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L108">            operands.push(node.text());</span>
+        }
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        else if (&quot;single_cc&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L112">            this.visit_classSingle(node);</span>
+        }
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        else if (&quot;range_cc&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L116">            this.visit_classRange(node);</span>
+        }
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        else if (&quot;combination_cc&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L120">            this.visit_classCombination(node);</span>
+        }
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        else if (&quot;negation_cc&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L124">            this.visit_classNegation(node);</span>
+        }
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        else if (&quot;exclusion_cc&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L128">            this.visit_classExclusion(node);</span>
+        }
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        else if (&quot;named_string_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L132">            this.visit_namedString(node);</span>
+        }
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        else if (&quot;named_character_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L136">            this.visit_namedCharacter(node);</span>
+        }
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        else if (&quot;named_sequence_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L140">            this.visit_namedSequence(node);</span>
+        }
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        else if (&quot;named_sequencedlr_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L144">            this.visit_namedSequenceDLR(node);</span>
+        }
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        else if (&quot;named_choice_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L148">            this.visit_namedChoice(node);</span>
+        }
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        else if (&quot;named_option_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L152">            this.visit_namedOption(node);</span>
+        }
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        else if (&quot;named_star_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L156">            this.visit_namedStar(node);</span>
+        }
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        else if (&quot;named_plus_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L160">            this.visit_namedPlus(node);</span>
+        }
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        else if (&quot;named_repetition_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L164">            this.visit_namedRepetition(node);</span>
+        }
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        else if (&quot;named_and_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L168">            this.visit_namedAnd(node);</span>
+        }
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        else if (&quot;named_not_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L172">            this.visit_namedNot(node);</span>
+        }
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        else if (&quot;anon_string_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L176">            this.visit_anonString(node);</span>
+        }
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        else if (&quot;anon_character_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L180">            this.visit_anonCharacter(node);</span>
+        }
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        else if (&quot;anon_sequence_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L184">            this.visit_anonSequence(node);</span>
+        }
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        else if (&quot;anon_sequencedlr_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L188">            this.visit_anonSequenceDLR(node);</span>
+        }
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        else if (&quot;anon_choice_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L192">            this.visit_anonChoice(node);</span>
+        }
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        else if (&quot;anon_option_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L196">            this.visit_anonOption(node);</span>
+        }
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        else if (&quot;anon_star_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L200">            this.visit_anonStar(node);</span>
+        }
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        else if (&quot;anon_plus_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L204">            this.visit_anonPlus(node);</span>
+        }
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        else if (&quot;anon_repetition_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L208">            this.visit_anonRepetition(node);</span>
+        }
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        else if (&quot;anon_and_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L212">            this.visit_anonAnd(node);</span>
+        }
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        else if (&quot;anon_not_rule&quot;.equals(node.rule()))</span>
+        {
+<span class="fc" id="L216">            this.visit_anonNot(node);</span>
+        }
+        else
+        {
+<span class="fc bfc" id="L220" title="All 2 branches covered.">            for (ITreeNode child : node.children())</span>
+            {
+<span class="fc" id="L222">                visit(child);</span>
+            }
+        }
+<span class="fc" id="L225">    }</span>
+
+    /**
+     * This method performs the visitation of a %root directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveRoot(final ITreeNode node)
+    {
+        // Retrieve the user-specified name of the root grammar rule.
+<span class="fc" id="L235">        final String root = find(node, &quot;name&quot;).text().trim();</span>
+
+<span class="fc" id="L237">        pigeon.setRoot(root);</span>
+<span class="fc" id="L238">    }</span>
+
+    /**
+     * This method performs the visitation of a %hide directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveHide(final ITreeNode node)
+    {
+<span class="nc" id="L247">        pigeon.hide();</span>
+<span class="nc" id="L248">    }</span>
+
+    /**
+     * This method performs the visitation of a %trace directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveTrace(final ITreeNode node)
+    {
+        // Retrieve the user-specified number of trace records to store simultaneously.
+<span class="fc" id="L258">        final int count = Integer.parseInt(find(node, &quot;digits&quot;).text().trim());</span>
+
+<span class="fc" id="L260">        pigeon.setTraceCount(count);</span>
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * This method performs the visitation of a %package directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directivePackage(final ITreeNode node)
+    {
+        // Retrieve the user-specified name of the package that the parser will be a part of.
+<span class="fc" id="L271">        final String namespace = TreeNode.find(node, &quot;string_body&quot;).text();</span>
+
+<span class="fc" id="L273">        pigeon.setPackageName(namespace);</span>
+<span class="fc" id="L274">    }</span>
+
+    /**
+     * This method performs the visitation of a %parser directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveParser(final ITreeNode node)
+    {
+        // Retrieve the user-specified name of the parser.
+<span class="fc" id="L284">        final String parser_name = TreeNode.find(node, &quot;string_body&quot;).text();</span>
+
+<span class="fc" id="L286">        pigeon.setParserName(parser_name);</span>
+<span class="fc" id="L287">    }</span>
+
+    /**
+     * This method performs the visitation of a %visitor directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveVisitor(final ITreeNode node)
+    {
+        // Retrieve the user-specified name of the visitor.
+<span class="fc" id="L297">        final String visitor_name = TreeNode.find(node, &quot;string_body&quot;).text();</span>
+
+<span class="fc" id="L299">        pigeon.setVisitorName(visitor_name);</span>
+<span class="fc" id="L300">    }</span>
+
+    /**
+     * This method performs the visitation of a %export-parser directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveExportParser(final ITreeNode node)
+    {
+<span class="nc" id="L309">        final String path = TreeNode.find(node, &quot;string_body&quot;).text();</span>
+
+<span class="nc" id="L311">        final File file = new File(path);</span>
+
+<span class="nc" id="L313">        pigeon.addExportParserFile(file);</span>
+<span class="nc" id="L314">    }</span>
+
+    /**
+     * This method performs the visitation of a %export-visitor directive.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_directiveExportVisitor(final ITreeNode node)
+    {
+<span class="nc" id="L323">        final String path = TreeNode.find(node, &quot;string_body&quot;).text();</span>
+
+<span class="nc" id="L325">        final File file = new File(path);</span>
+
+<span class="nc" id="L327">        pigeon.addExportVisitorFile(file);</span>
+<span class="nc" id="L328">    }</span>
+
+    /**
+     * This method performs the visitation of a named string-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedString(final ITreeNode node)
+    {
+        // Retrieve the name of the new string rule.
+<span class="fc" id="L338">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the value of the new string rule.
+<span class="fc" id="L341">        final String value = find(node, &quot;string_body&quot;).text();</span>
+
+        // Create the new string rule.
+<span class="fc" id="L344">        pigeon.str(name, value);</span>
+<span class="fc" id="L345">    }</span>
+
+    /**
+     * This method performs the visitation of a named character-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedCharacter(final ITreeNode node)
+    {
+        // Visit the character-class.
+<span class="fc" id="L355">        visitChildren(node);</span>
+
+        // Retrieve the name of the new character rule.
+<span class="fc" id="L358">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the character-class that the new rule will match.
+<span class="fc" id="L361">        final String clazz = operands.pop().toString();</span>
+
+        // Create the new character rule.
+<span class="fc" id="L364">        pigeon.chr(name, clazz);</span>
+<span class="fc" id="L365">    }</span>
+
+    /**
+     * This method performs the visitation of a named sequence-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedSequence(final ITreeNode node)
+    {
+        // Visit the elements in the sequence.
+<span class="fc" id="L375">        visitChildren(node);</span>
+
+        // Retrieve the name of the new sequence rule.
+<span class="fc" id="L378">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the names of the elements in the new sequence rule.
+<span class="fc" id="L381">        final List&lt;String&gt; elements = pop(0);</span>
+
+        // Create the new sequence rule.
+<span class="fc" id="L384">        pigeon.sequence(name, elements.toArray(new String[0]));</span>
+<span class="fc" id="L385">    }</span>
+
+    /**
+     * This method performs the visitation of a named sequence-dlr-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedSequenceDLR(final ITreeNode node)
+    {
+        // Visit the base-case and the shared elements of the sequence.
+<span class="fc" id="L395">        visitChildren(node);</span>
+
+        // Retrieve the name of the new sequence-DLR rule.
+<span class="fc" id="L398">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // These are the shared elements of the sequence.
+<span class="fc" id="L401">        final List&lt;String&gt; shared = pop(1);</span>
+
+        // Retrieve the base-case element of the sequence.
+<span class="fc" id="L404">        final String base = operands.pop().toString();</span>
+
+        // Create the new sequence-DLR rule.
+<span class="fc" id="L407">        pigeon.sequenceDLR(name, base, shared.toArray(new String[0]));</span>
+<span class="fc" id="L408">    }</span>
+
+    /**
+     * This method performs the visitation of a named choice-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedChoice(final ITreeNode node)
+    {
+        // Visit the options.
+<span class="fc" id="L418">        visitChildren(node);</span>
+
+        // Retrieve the name of the new choice rule.
+<span class="fc" id="L421">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the names of the options in the new choice rule.
+<span class="fc" id="L424">        final List&lt;String&gt; options = pop(0);</span>
+
+        // Create the new choice rule.
+<span class="fc" id="L427">        pigeon.choose(name, options.toArray(new String[0]));</span>
+<span class="fc" id="L428">    }</span>
+
+    /**
+     * This method performs the visitation of a named option-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedOption(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L438">        visitChildren(node);</span>
+
+        // Retrieve the name of the new option rule.
+<span class="fc" id="L441">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L444">        final String item = operands.pop();</span>
+
+        // Create the new option rule.
+<span class="fc" id="L447">        pigeon.option(name, item);</span>
+<span class="fc" id="L448">    }</span>
+
+    /**
+     * This method performs the visitation of a named star-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedStar(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L458">        visitChildren(node);</span>
+
+        // Retrieve the name of the new star rule.
+<span class="fc" id="L461">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L464">        final String item = operands.pop();</span>
+
+        // Create the new star rule.
+<span class="fc" id="L467">        pigeon.star(name, item);</span>
+<span class="fc" id="L468">    }</span>
+
+    /**
+     * This method performs the visitation of a named plus-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedPlus(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L478">        visitChildren(node);</span>
+
+        // Retrieve the name of the new plus rule.
+<span class="fc" id="L481">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L484">        final String item = operands.pop();</span>
+
+        // Create the new plus rule.
+<span class="fc" id="L487">        pigeon.plus(name, item);</span>
+<span class="fc" id="L488">    }</span>
+
+    /**
+     * This method performs the visitation of a named repetition-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedRepetition(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L498">        visitChildren(node);</span>
+
+        // Retrieve the name of the new repetition rule.
+<span class="fc" id="L501">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L504">        final String item = operands.pop();</span>
+
+        // Retrieve the minimum number of times to repeat the item.
+<span class="fc" id="L507">        final String minimum = find(find(node, &quot;repetition_minimum&quot;), &quot;digits&quot;).text().trim();</span>
+
+        // Retrieve the maximum number of times to repeat the item.
+<span class="fc" id="L510">        final String maximum = find(find(node, &quot;repetition_maximum&quot;), &quot;digits&quot;).text().trim();</span>
+
+<span class="fc" id="L512">        final int min = Integer.parseInt(minimum);</span>
+
+<span class="fc" id="L514">        final int max = Integer.parseInt(maximum);</span>
+
+        // Create the new repetition rule.
+<span class="fc" id="L517">        pigeon.repeat(name, item, min, max);</span>
+<span class="fc" id="L518">    }</span>
+
+    /**
+     * This method performs the visitation of a named and-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedAnd(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L528">        visitChildren(node);</span>
+
+        // Retrieve the name of the new and-rule.
+<span class="fc" id="L531">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L534">        final String item = operands.pop();</span>
+
+        // Create the new and-rule.
+<span class="fc" id="L537">        pigeon.and(name, item);</span>
+<span class="fc" id="L538">    }</span>
+
+    /**
+     * This method performs the visitation of a named not-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_namedNot(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L548">        visitChildren(node);</span>
+
+        // Retrieve the name of the new not-rule.
+<span class="fc" id="L551">        final String name = find(node, &quot;assignee&quot;).text();</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L554">        final String item = operands.pop();</span>
+
+        // Create the new not-rule.
+<span class="fc" id="L557">        pigeon.not(name, item);</span>
+<span class="fc" id="L558">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous string-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonString(final ITreeNode node)
+    {
+        // Create the name of the new string rule.
+<span class="fc" id="L568">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the value of the new string rule.
+<span class="fc" id="L571">        final String value = find(node, &quot;string_body&quot;).text();</span>
+
+        // Create the new string rule.
+<span class="fc" id="L574">        pigeon.str(name, value);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L577">        operands.push(name);</span>
+<span class="fc" id="L578">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous character-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonCharacter(final ITreeNode node)
+    {
+        // Visit the character-class.
+<span class="fc" id="L588">        visitChildren(node);</span>
+
+        // Create the name of the new character rule.
+<span class="fc" id="L591">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the character-class that the new rule will match.
+<span class="fc" id="L594">        final String clazz = operands.pop().toString();</span>
+
+        // Create the new character rule.
+<span class="fc" id="L597">        pigeon.chr(name, clazz);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L600">        operands.push(name);</span>
+<span class="fc" id="L601">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous sequence-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonSequence(final ITreeNode node)
+    {
+        // The current operands are not a part of the sequence.
+<span class="fc" id="L611">        final int stack_size = operands.size();</span>
+
+        // Visit the elements in the sequence.
+<span class="fc" id="L614">        visitChildren(node);</span>
+
+        // Create the name of the new sequence rule.
+<span class="fc" id="L617">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the names of the elements in the sequence.
+<span class="fc" id="L620">        final List&lt;String&gt; elements = pop(stack_size);</span>
+
+        // Create the new sequence rule.
+<span class="fc" id="L623">        pigeon.sequence(name, elements.toArray(new String[0]));</span>
+
+        // The name of the new rule is an operand of another rule.
+<span class="fc" id="L626">        operands.push(name);</span>
+<span class="fc" id="L627">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous sequence-dlr-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonSequenceDLR(final ITreeNode node)
+    {
+        // The current operands are not a part of the sequence.
+<span class="fc" id="L637">        final int stack_size = operands.size();</span>
+
+        // Visit the base-case and shared elements of the sequence.
+<span class="fc" id="L640">        visitChildren(node);</span>
+
+        // Create the name of the new sequence-DLR rule.
+<span class="fc" id="L643">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the shared elements of the sequence.
+<span class="fc" id="L646">        final List&lt;String&gt; shared = pop(stack_size + 1);</span>
+
+        // Retrieve the base-case of the sequence.
+<span class="fc" id="L649">        final String base = operands.pop();</span>
+
+        // Create the new sequence-DLR rule.
+<span class="fc" id="L652">        pigeon.sequenceDLR(name, base, shared.toArray(new String[0]));</span>
+
+        // The name of the new rule is an operand of another rule.
+<span class="fc" id="L655">        operands.push(name);</span>
+<span class="fc" id="L656">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous choice-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonChoice(final ITreeNode node)
+    {
+        // The current operands are not options in the choice.
+<span class="fc" id="L666">        final int stack_size = operands.size();</span>
+
+        // Visit the options in the choice.
+<span class="fc" id="L669">        visitChildren(node);</span>
+
+        // Create the name of the new choice-rule.
+<span class="fc" id="L672">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the options in the choice.
+<span class="fc" id="L675">        final List&lt;String&gt; options = pop(stack_size);</span>
+
+        // Create the new choice-rule.
+<span class="fc" id="L678">        pigeon.choose(name, options.toArray(new String[0]));</span>
+
+        // The name of the new rule is an operand of another rule.
+<span class="fc" id="L681">        operands.push(name);</span>
+<span class="fc" id="L682">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous option-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonOption(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L692">        visitChildren(node);</span>
+
+        // Create the name of the new option rule.
+<span class="fc" id="L695">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the name of the item.
+<span class="fc" id="L698">        final String item = operands.pop().toString();</span>
+
+        // Create the new option rule.
+<span class="fc" id="L701">        pigeon.option(name, item);</span>
+
+        // Push the name of the new option rule onto the operand stack.
+<span class="fc" id="L704">        operands.push(name);</span>
+<span class="fc" id="L705">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous star-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonStar(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L715">        visitChildren(node);</span>
+
+        // Create the name of the new star rule.
+<span class="fc" id="L718">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the name of the item.
+<span class="fc" id="L721">        final String item = operands.pop().toString();</span>
+
+        // Create the new star rule.
+<span class="fc" id="L724">        pigeon.star(name, item);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L727">        operands.push(name);</span>
+<span class="fc" id="L728">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous plus-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonPlus(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L738">        visitChildren(node);</span>
+
+        // Create the name of the new plus rule.
+<span class="fc" id="L741">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the name of the item.
+<span class="fc" id="L744">        final String item = operands.pop().toString();</span>
+
+        // Create the new plus rule.
+<span class="fc" id="L747">        pigeon.plus(name, item);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L750">        operands.push(name);</span>
+<span class="fc" id="L751">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous repetition-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonRepetition(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L761">        visitChildren(node);</span>
+
+        // Create the name of the new repetition rule.
+<span class="fc" id="L764">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the name of the item to match.
+<span class="fc" id="L767">        final String item = operands.pop();</span>
+
+        // Retrieve the minimum number of times to repeat the item.
+<span class="fc" id="L770">        final String minimum = find(find(node, &quot;repetition_minimum&quot;), &quot;digits&quot;).text().trim();</span>
+
+        // Retrieve the maximum number of times to repeat the item.
+<span class="fc" id="L773">        final String maximum = find(find(node, &quot;repetition_maximum&quot;), &quot;digits&quot;).text().trim();</span>
+
+<span class="fc" id="L775">        final int min = Integer.parseInt(minimum);</span>
+
+<span class="fc" id="L777">        final int max = Integer.parseInt(maximum);</span>
+
+        // Create the new repetition rule.
+<span class="fc" id="L780">        pigeon.repeat(name, item, min, max);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L783">        operands.push(name);</span>
+<span class="fc" id="L784">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous and-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonAnd(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L794">        visitChildren(node);</span>
+
+        // Create the name of the new and-rule.
+<span class="fc" id="L797">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the name of the item.
+<span class="fc" id="L800">        final String item = operands.pop().toString();</span>
+
+        // Create the new and-rule.
+<span class="fc" id="L803">        pigeon.and(name, item);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L806">        operands.push(name);</span>
+<span class="fc" id="L807">    }</span>
+
+    /**
+     * This method performs the visitation of an anonymous not-rule.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_anonNot(final ITreeNode node)
+    {
+        // Visit the item.
+<span class="fc" id="L817">        visitChildren(node);</span>
+
+        // Create the name of the new not-rule.
+<span class="fc" id="L820">        final String name = '@' + Integer.toString(anon_counter++);</span>
+
+        // Retrieve the name of the item.
+<span class="fc" id="L823">        final String item = operands.pop().toString();</span>
+
+        // Create the new not-rule.
+<span class="fc" id="L826">        pigeon.not(name, item);</span>
+
+        // Push the name of the new rule onto the operand stack.
+<span class="fc" id="L829">        operands.push(name);</span>
+<span class="fc" id="L830">    }</span>
+
+    /**
+     * This method performs the visitation of a single-character character-class.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_classSingle(final ITreeNode node)
+    {
+        // Compute the value of the represented character.
+<span class="fc" id="L840">        final char character = extractChar(node.text());</span>
+
+        // Create the name of the character-class.
+<span class="fc" id="L843">        final String name = &quot;@class&quot; + Integer.toString(class_counter++);</span>
+
+        // Create the new character-class.
+<span class="fc" id="L846">        pigeon.range(name, character);</span>
+
+        // The name of the new character-class is an operand, so push it onto the operand-stack.
+<span class="fc" id="L849">        operands.push(name);</span>
+<span class="fc" id="L850">    }</span>
+
+    /**
+     * This method performs the visitation of a multiple-character character-class.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_classRange(final ITreeNode node)
+    {
+        // Compute the value of the minimum character in the range.
+<span class="fc" id="L860">        final char minimum = extractChar(node.childAt(0).text());</span>
+
+        // Compute the value of the maximum character in the range.
+<span class="fc" id="L863">        final char maximum = extractChar(node.childAt(4).text());</span>
+
+        // Create the name of the new character-class.
+<span class="fc" id="L866">        final String name = &quot;@class&quot; + Integer.toString(class_counter++);</span>
+
+        // Create the new character-class itself.
+<span class="fc" id="L869">        pigeon.range(name, minimum, maximum);</span>
+
+        // The name of the new character-class is an operand, so push it onto the operand-stack.
+<span class="fc" id="L872">        operands.push(name);</span>
+<span class="fc" id="L873">    }</span>
+
+    /**
+     * This method performs the visitation of a combination character-class.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_classCombination(final ITreeNode node)
+    {
+        // The current operands are not a part of the combination.
+<span class="fc" id="L883">        int stack_size = operands.size();</span>
+
+        // Visit the elements of the combination.
+<span class="fc" id="L886">        visitChildren(node);</span>
+
+        // Create the name of the new character-class.
+<span class="fc" id="L889">        final String name = &quot;@class&quot; + Integer.toString(class_counter++);</span>
+
+        // Retrieve the elements of the combination.
+<span class="fc" id="L892">        final List&lt;String&gt; elements = pop(stack_size);</span>
+
+        // Create the new character-class.
+<span class="fc" id="L895">        pigeon.combine(name, elements.toArray(new String[0]));</span>
+
+        // The name of the new character-class is an operand, so push it onto the operand-stack.
+<span class="fc" id="L898">        operands.push(name);</span>
+<span class="fc" id="L899">    }</span>
+
+    /**
+     * This method performs the visitation of a negation character-class.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_classNegation(final ITreeNode node)
+    {
+        // The current operands are not a part of the negation.
+<span class="fc" id="L909">        int stack_size = operands.size();</span>
+
+        // Visit the elements of the negation.
+<span class="fc" id="L912">        visitChildren(node);</span>
+
+        // Retrieve the elements of the negation.
+<span class="fc" id="L915">        final List&lt;String&gt; elements = pop(stack_size);</span>
+
+        // It is necessary to combine the elements into a single character-class.
+        // Create the name of the aforedescribed character-class.
+<span class="fc" id="L919">        final String negated_name = &quot;@class&quot; + Integer.toString(class_counter++);</span>
+
+        // Create the name of the negation character-class.
+<span class="fc" id="L922">        final String name = &quot;@class&quot; + Integer.toString(class_counter++);</span>
+
+        // Create the combination character-class.
+<span class="fc" id="L925">        pigeon.combine(negated_name, elements.toArray(new String[0]));</span>
+
+        // Create the negation character-class, which negates the combination character-class.
+<span class="fc" id="L928">        pigeon.negate(name, negated_name);</span>
+
+        // The name of the new character-class is an operand, so push it onto the operand-stack.
+<span class="fc" id="L931">        operands.push(name);</span>
+<span class="fc" id="L932">    }</span>
+
+    /**
+     * This method performs the visitation of a exclusion character-class.
+     *
+     * @param node is the node to visit.
+     */
+    final void visit_classExclusion(final ITreeNode node)
+    {
+        // Visit the includes and excludes parts of the exclusion.
+<span class="fc" id="L942">        visitChildren(node);</span>
+
+        // Retrieve the character-class that is excluded.
+<span class="fc" id="L945">        final String excludes = operands.pop().toString();</span>
+
+        // Retrieve the character-class from which characters are excluded.
+<span class="fc" id="L948">        final String includes = operands.pop().toString();</span>
+
+        // Create the name of the new character-class.
+<span class="fc" id="L951">        final String name = &quot;@class&quot; + Integer.toString(class_counter++);</span>
+
+        // Create the new character-class.
+<span class="fc" id="L954">        pigeon.exclude(name, includes, excludes);</span>
+
+        // The name of the new character-class is an operand, so push it onto the operand-stack.
+<span class="fc" id="L957">        operands.push(name);</span>
+<span class="fc" id="L958">    }</span>
+
+    final List&lt;String&gt; pop(final int stack_size)
+    {
+<span class="fc" id="L962">        final LinkedList&lt;String&gt; result = new LinkedList&lt;String&gt;();</span>
+
+<span class="fc bfc" id="L964" title="All 2 branches covered.">        while (stack_size &lt; operands.size())</span>
+        {
+<span class="fc" id="L966">            result.addFirst(operands.pop());</span>
+        }
+
+<span class="fc" id="L969">        return result;</span>
+    }
+
+    /**
+     * This method performs a depth-first search in order to find a node in an AST.
+     *
+     * &lt;p&gt;This method returns the first match that it finds.&lt;/p&gt;
+     *
+     * @param parent is the root of the subtree.
+     * @param name is the name of the rule that created the node to find.
+     * @return the found node, or null, if no such node was found.
+     */
+    final ITreeNode find(final ITreeNode parent,
+                         final String name)
+    {
+<span class="pc bpc" id="L984" title="1 of 2 branches missed.">        for (ITreeNode child : parent.iterableDFS())</span>
+        {
+<span class="fc bfc" id="L986" title="All 2 branches covered.">            if (child.rule().equals(name))</span>
+            {
+<span class="fc" id="L988">                return child;</span>
+            }
+<span class="fc" id="L990">        }</span>
+
+<span class="nc" id="L992">        return null;</span>
+    }
+
+    /**
+     * This method invokes the generalized visitation method on all the children of a node.
+     *
+     * @param parent is the node whose children will be visited.
+     */
+    final void visitChildren(final ITreeNode parent)
+    {
+<span class="fc bfc" id="L1002" title="All 2 branches covered.">        for (ITreeNode child : parent.children())</span>
+        {
+<span class="fc" id="L1004">            visit(child);</span>
+        }
+<span class="fc" id="L1006">    }</span>
+
+    /**
+     * This method converts a character-literal to a char value.
+     *
+     * &lt;p&gt;
+     * If the character is of the form 'X', then the value is the numeric form of X.
+     * If the character is of the form 123C, then the value is 123.
+     * If the character is of the form
+     * &lt;/p&gt;
+     *
+     * @param literal is the literal itself.
+     * @return the aforedescribed value.
+     */
+    final char extractChar(String literal)
+    {
+<span class="fc" id="L1022">        literal = literal.trim();</span>
+
+<span class="fc bfc" id="L1024" title="All 2 branches covered.">        if (literal.equals(&quot;MIN&quot;))</span>
+        {
+<span class="fc" id="L1026">            return Character.MIN_VALUE;</span>
+        }
+
+<span class="fc bfc" id="L1029" title="All 2 branches covered.">        if (literal.equals(&quot;MAX&quot;))</span>
+        {
+<span class="fc" id="L1031">            return Character.MAX_VALUE;</span>
+        }
+
+<span class="fc bfc" id="L1034" title="All 2 branches covered.">        return literal.matches(&quot;[0-9]+C&quot;)</span>
+<span class="fc" id="L1035">                ? (char) Integer.parseInt(literal.replace(&quot;C&quot;, &quot;&quot;))</span>
+<span class="fc" id="L1036">                : literal.charAt(1);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

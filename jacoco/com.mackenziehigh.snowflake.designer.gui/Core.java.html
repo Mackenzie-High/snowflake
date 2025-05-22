@@ -1,0 +1,869 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Core.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.designer.gui</a> &gt; <span class="el_source">Core.java</span></div><h1>Core.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.mackenziehigh.snowflake.designer.gui;
+
+import com.mackenziehigh.snowflake.Grammar;
+import com.mackenziehigh.snowflake.LinesAndColumns;
+import com.mackenziehigh.snowflake.NewlineStyles;
+import com.mackenziehigh.snowflake.Parser;
+import com.mackenziehigh.snowflake.ParserOutput;
+import com.mackenziehigh.snowflake.designer.gui.tabs.ConcreteSyntaxTreePanel;
+import com.mackenziehigh.snowflake.designer.gui.tabs.EditorPanel;
+import com.mackenziehigh.snowflake.designer.io.StringFile;
+import com.mackenziehigh.snowflake.parsergen.ParserGenerator;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.prefs.Preferences;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+
+/**
+ * This class centralizes the logic behind the GUI.
+ *
+ * @author Michael Mackenzie High
+ */
+<span class="nc" id="L52">public final class Core</span>
+{
+<span class="nc" id="L54">    private static final FileFilter file_filter = new FileFilter()</span>
+<span class="nc" id="L55">    {</span>
+        @Override
+        public boolean accept(final File path)
+        {
+<span class="nc bnc" id="L59" title="All 4 branches missed.">            return path.toString().endsWith(&quot;.snow&quot;) || path.isDirectory();</span>
+        }
+
+        @Override
+        public String getDescription()
+        {
+<span class="nc" id="L65">            return &quot;Snowflake Project&quot;;</span>
+        }
+    };
+
+<span class="nc" id="L69">    private static final Preferences preferences = Preferences.userRoot().node(Core.class.getName());</span>
+
+    private static final String FONT_SIZE_PREFERENCE = &quot;font-size&quot;;
+
+<span class="nc" id="L73">    private static JFrame main = null;</span>
+
+<span class="nc" id="L75">    private static final JFileChooser file_chooser = new JFileChooser();</span>
+
+<span class="nc" id="L77">    private static File current_file = null;</span>
+
+<span class="nc" id="L79">    private static final EditorPanel grammar = new EditorPanel();</span>
+
+<span class="nc" id="L81">    private static final EditorPanel input = new EditorPanel();</span>
+
+<span class="nc" id="L83">    private static final ConcreteSyntaxTreePanel parse_tree = new ConcreteSyntaxTreePanel();</span>
+
+<span class="nc" id="L85">    private static final EditorPanel generated_parser = new EditorPanel();</span>
+
+<span class="nc" id="L87">    private static final EditorPanel generated_visitor = new EditorPanel();</span>
+
+<span class="nc" id="L89">    private static final EditorPanel output = new EditorPanel();</span>
+
+<span class="nc" id="L91">    private static final EditorPanel license = new EditorPanel();</span>
+
+<span class="nc" id="L93">    private static final JTabbedPane tabs = new JTabbedPane();</span>
+
+<span class="nc" id="L95">    private static JLabel line_number = new JLabel();</span>
+
+<span class="nc" id="L97">    private static JLabel column_number = new JLabel();</span>
+
+<span class="nc" id="L99">    private static JLabel project_label = new JLabel();</span>
+
+    private static Thread parse_thread;
+
+<span class="nc" id="L103">    private static String saved_grammar = &quot;&quot;;</span>
+
+<span class="nc" id="L105">    private static String saved_input = &quot;&quot;;</span>
+
+<span class="nc" id="L107">    private static final FindAndReplaceDialog find_and_replace_dialog = new FindAndReplaceDialog(null, false);</span>
+
+    public static JTabbedPane getTabs()
+    {
+<span class="nc" id="L111">        return tabs;</span>
+    }
+
+    public static JLabel getLineNumber()
+    {
+<span class="nc" id="L116">        return line_number;</span>
+    }
+
+    public static JLabel getColumnNumber()
+    {
+<span class="nc" id="L121">        return column_number;</span>
+    }
+
+    public static JLabel getProjectLabel()
+    {
+<span class="nc" id="L126">        return project_label;</span>
+    }
+
+    /**
+     * Static Constructor.
+     */
+    static
+    {
+<span class="nc" id="L134">        file_chooser.addChoosableFileFilter(file_filter);</span>
+<span class="nc" id="L135">        file_chooser.setFileFilter(file_filter);</span>
+
+<span class="nc" id="L137">        tabs.add(&quot;Grammar&quot;, grammar);</span>
+<span class="nc" id="L138">        tabs.add(&quot;Input&quot;, input);</span>
+<span class="nc" id="L139">        tabs.add(&quot;Parse Tree&quot;, parse_tree);</span>
+<span class="nc" id="L140">        tabs.add(&quot;Output&quot;, output);</span>
+<span class="nc" id="L141">        tabs.add(&quot;Generated Parser&quot;, generated_parser);</span>
+<span class="nc" id="L142">        tabs.add(&quot;Generated Visitor&quot;, generated_visitor);</span>
+<span class="nc" id="L143">        tabs.add(&quot;License&quot;, license);</span>
+
+<span class="nc" id="L145">        final Font font = new Font(&quot;Monospaced&quot;, Font.PLAIN, 14);</span>
+
+<span class="nc" id="L147">        Core.input.getTextArea().setFont(font);</span>
+
+<span class="nc" id="L149">        Core.grammar.getTextArea().setFont(font);</span>
+
+<span class="nc" id="L151">        Core.output.getTextArea().setEditable(false);</span>
+
+<span class="nc" id="L153">        license.getTextArea().setEditable(false);</span>
+<span class="nc" id="L154">        license.getTextArea().setText(&quot;Copyright 2013 Michael Mackenzie High\n\nLicensed under the Apache License, Version 2.0 (the \&quot;License\&quot;);\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n     http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \&quot;AS IS\&quot; BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.&quot;);</span>
+
+        // Add listeners that update the line and column status labels.
+<span class="nc" id="L157">        Core.grammar.getTextArea().addCaretListener(Core.newRefreshListener(Core.grammar.getTextArea()));</span>
+<span class="nc" id="L158">        Core.input.getTextArea().addCaretListener(Core.newRefreshListener(Core.input.getTextArea()));</span>
+<span class="nc" id="L159">        Core.parse_tree.getTextArea().addCaretListener(Core.newRefreshListener(Core.parse_tree.getTextArea()));</span>
+<span class="nc" id="L160">        Core.output.getTextArea().addCaretListener(Core.newRefreshListener(Core.output.getTextArea()));</span>
+<span class="nc" id="L161">        Core.generated_parser.getTextArea().addCaretListener(Core.newRefreshListener(Core.generated_parser.getTextArea()));</span>
+<span class="nc" id="L162">        Core.generated_visitor.getTextArea().addCaretListener(Core.newRefreshListener(Core.generated_visitor.getTextArea()));</span>
+<span class="nc" id="L163">        Core.license.getTextArea().addCaretListener(Core.newRefreshListener(Core.license.getTextArea()));</span>
+
+<span class="nc" id="L165">        Core.parse_tree.getTextArea().setFont(font);</span>
+<span class="nc" id="L166">        Core.parse_tree.getTextArea().setEditable(false);</span>
+
+        // Make sure that the line and column numbers are displayed, when the program loads.
+<span class="nc" id="L169">        Core.grammar.getTextArea().setText(&quot; &quot;);</span>
+<span class="nc" id="L170">        Core.grammar.getTextArea().setCaretPosition(0);</span>
+<span class="nc" id="L171">        Core.grammar.getTextArea().setText(&quot;&quot;);</span>
+
+//        final SyntaxHighlighter highlighter = new SyntaxHighlighter(Core.grammar.getTextArea(), 200);
+//        Core.grammar.getTextArea().setDocument(highlighter);
+//        highlighter.start();
+<span class="nc" id="L176">    }</span>
+
+    /**
+     * An instance of this class is run in order to implement Action-&gt;Parse.
+     */
+<span class="nc" id="L181">    private static final class ParseRunner</span>
+            implements Runnable
+    {
+        private static class BadGrammarException
+                extends Exception
+        {
+        }
+
+        private static class ParsingFailedException
+                extends Exception
+        {
+        }
+
+        /**
+         * This writer stores the standard-output to output via the GUI's &quot;Output&quot; tab.
+         */
+<span class="nc" id="L197">        private final StringWriter stdout = new StringWriter();</span>
+
+        /**
+         * This writer allows the previous writer to be treated like a print-stream.
+         */
+<span class="nc" id="L202">        private final PrintWriter writer = new PrintWriter(stdout);</span>
+
+        /**
+         * Get the grammar from the &quot;Grammar&quot; tab.
+         */
+<span class="nc" id="L207">        final String strGrammar = grammar.getTextArea().getText();</span>
+
+        /**
+         * Get the input from the &quot;Input&quot; tab.
+         */
+<span class="nc" id="L212">        final String strInput = input.getTextArea().getText();</span>
+
+        /**
+         * This will be the dynamically created parser.
+         */
+<span class="nc" id="L217">        private Parser parser = null;</span>
+
+        /**
+         * This will be the output of the dynamically created parser.
+         */
+        private ParserOutput parser_output;
+
+        /**
+         * When this method is invoked, the user-specified input is parsed
+         * using the user-specified grammar.
+         */
+        public void run()
+        {
+            // Inform the user that parsing may take a moment.
+            // Under very limited normal circumstances, the program may appear to freeze.
+            // However, the parser will run out of heap space.
+            // As a result, the parser will eventually complete its parsing attempt.
+<span class="nc" id="L234">            output.getTextArea().setForeground(Color.BLACK);</span>
+<span class="nc" id="L235">            output.getTextArea().setText((&quot;Please wait, parsing may take a moment.\n&quot;</span>
+                                          + &quot;\n&quot;
+                                          + &quot;If the program appears to freeze, your grammar most likely contains a bug.\n&quot;
+                                          + &quot;After a few minutes max, the program will run out of heap space.\n&quot;
+                                          + &quot;As a result, parsing will be forced to stop and the program will unfreeze.\n&quot;
+                                          + &quot;\n&quot;
+                                          + &quot;Example of a buggy grammar:\n&quot;
+                                          + &quot;  root = moo *;\n&quot;
+                                          + &quot;  moo = \&quot;\&quot;;\n&quot;));
+<span class="nc" id="L244">            output.getTextArea().setCaretPosition(0);</span>
+<span class="nc" id="L245">            tabs.setSelectedComponent(output);</span>
+
+            try
+            {
+                try
+                {
+                    // Create the parser that will parse the user-specified input.
+<span class="nc" id="L252">                    this.createParser();</span>
+
+                    // Parse the user-specified input and display the result.
+<span class="nc" id="L255">                    this.parseInput();</span>
+
+                    // Display the result of the successful parsing attempt.
+<span class="nc" id="L258">                    this.reportParsingSuccess();</span>
+                }
+<span class="nc" id="L260">                catch (BadGrammarException ex)</span>
+                {
+<span class="nc" id="L262">                    this.reportBadGrammar();</span>
+                }
+<span class="nc" id="L264">                catch (ParsingFailedException ex)</span>
+                {
+<span class="nc" id="L266">                    this.reportParsingFailed();</span>
+                }
+<span class="nc" id="L268">                catch (StackOverflowError ex)</span>
+                {
+<span class="nc" id="L270">                    this.reportStackOverflow(ex);</span>
+                }
+<span class="nc" id="L272">                catch (Throwable ex)</span>
+                {
+<span class="nc" id="L274">                    this.reportUnexpectedException(ex);</span>
+<span class="nc" id="L275">                }</span>
+
+                // Make sure the streams are flushed.
+<span class="nc" id="L278">                writer.flush();</span>
+<span class="nc" id="L279">                stdout.flush();</span>
+
+                // Display the standard-output via the GUI's &quot;Output&quot; tab.
+<span class="nc" id="L282">                output.getTextArea().setText(stdout.toString());</span>
+<span class="nc" id="L283">                output.getTextArea().setCaretPosition(0);</span>
+
+                // Stop blocking the parse action.
+<span class="nc" id="L286">                Core.parse_thread = null;</span>
+            }
+<span class="nc" id="L288">            catch (RuntimeException t)</span>
+            {
+                // Stop blocking the parse action.
+<span class="nc" id="L291">                Core.parse_thread = null;</span>
+
+<span class="nc" id="L293">                throw t;</span>
+<span class="nc" id="L294">            }</span>
+<span class="nc" id="L295">        }</span>
+
+        /**
+         * This method dynamically creates a parser object from the user-specified grammar.
+         *
+         * @throws BadGrammarException if the user-specified grammar is malformed.
+         */
+        private void createParser()
+                throws BadGrammarException
+        {
+            // Create a parser generator in order to create the user-specified parser.
+<span class="nc" id="L306">            final ParserGenerator pg = ParserGenerator.forJava(writer);</span>
+
+            // Use the parser generator to dynamically create a grammar object.
+<span class="nc" id="L309">            final Grammar dynamic_grammar = pg.parseGrammar(strGrammar);</span>
+
+            // If the grammar object could not be created,
+            // then the user-specified grammar must invalid.
+<span class="nc bnc" id="L313" title="All 2 branches missed.">            if (dynamic_grammar == null)</span>
+            {
+<span class="nc" id="L315">                throw new BadGrammarException();</span>
+            }
+
+            // Dynamically create a parser based on the grammar from the &quot;Grammar&quot; tab.
+<span class="nc" id="L319">            parser = dynamic_grammar.newParser();</span>
+<span class="nc" id="L320">        }</span>
+
+        /**
+         * This method uses the dynamically created parser to parse the user-specified input.
+         */
+        private void parseInput()
+                throws ParsingFailedException
+        {
+            // Parse the user-specified input.
+<span class="nc" id="L329">            parser_output = parser.parse(strInput);</span>
+
+            // If the parsing attempt failed, then it must be reported to the user.
+<span class="nc bnc" id="L332" title="All 2 branches missed.">            if (parser_output.success() == false)</span>
+            {
+<span class="nc" id="L334">                throw new ParsingFailedException();</span>
+            }
+<span class="nc" id="L336">        }</span>
+
+        /**
+         * This method reports a malformed grammar to the user.
+         */
+        private void reportBadGrammar()
+        {
+            // Note: The parser-generator has already written the error info to the print-stream.
+
+<span class="nc" id="L345">            output.getTextArea().setForeground(Color.RED);</span>
+
+<span class="nc" id="L347">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L348">        }</span>
+
+        /**
+         * This method reports the results of a successful parsing attempt to the user.
+         */
+        private void reportParsingSuccess()
+        {
+            // Make the parse-tree be displayable via a GUI.
+<span class="nc" id="L356">            final DisplayableTreeNode disroot = new DisplayableTreeNode(null,</span>
+<span class="nc" id="L357">                                                                        parser_output.parseTree());</span>
+
+            // Display the parse-tree via the GUI.
+<span class="nc" id="L360">            final TreeModel model = new DefaultTreeModel(disroot);</span>
+<span class="nc" id="L361">            parse_tree.getParseTree().setModel(model);</span>
+<span class="nc" id="L362">            parse_tree.getTextArea().setText(&quot;&quot;);</span>
+
+            // Since the parsing attempt was successful, the output color must be black.
+<span class="nc" id="L365">            output.getTextArea().setForeground(Color.BLACK);</span>
+
+            // Report that the parsing attempt was successful.
+            // Also, display the tracer-records generated by the parser.
+            // These records can help ths user find bugs in their grammar.
+<span class="nc" id="L370">            writer.println(&quot;Excellent, parsing was successful!&quot;);</span>
+<span class="nc" id="L371">            writer.println();</span>
+<span class="nc" id="L372">            parser_output.trace().print(writer);</span>
+
+            // Keep the &quot;Generated Parser&quot; and &quot;Generated Visitor&quot; tabs up to date.
+<span class="nc" id="L375">            generateParser();</span>
+
+            // Focus on the &quot;Parse Tree&quot; tab, because that is what the user most likely wants.
+<span class="nc" id="L378">            tabs.setSelectedComponent(parse_tree);</span>
+<span class="nc" id="L379">        }</span>
+
+        private void reportParsingFailed()
+        {
+            // Determine the style of newline that is present in the input.
+<span class="nc" id="L384">            final NewlineStyles newline = NewlineStyles.fromGuess(strInput, NewlineStyles.LF);</span>
+
+            // Print information regarding the failed parsing-attempt.
+            // For example, print the estimated location of the syntax error.
+<span class="nc" id="L388">            parser_output.print(writer, newline, true, true, true);</span>
+
+            // Since an error is being reported, the output color must be red.
+<span class="nc" id="L391">            output.getTextArea().setForeground(Color.RED);</span>
+
+            // Since an error is being reported, the GUI's &quot;Output&quot; tab must take the focus.
+<span class="nc" id="L394">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L395">        }</span>
+
+        private void reportStackOverflow(final StackOverflowError exception)
+        {
+            // Write the output that the user will see.
+<span class="nc" id="L400">            writer.println(&quot;Oh no! - A stack-overflow occurred!&quot;);</span>
+<span class="nc" id="L401">            writer.println();</span>
+<span class="nc" id="L402">            writer.println(&quot;Most likely, your grammar contains left-recursion.&quot;);</span>
+<span class="nc" id="L403">            writer.println();</span>
+<span class="nc" id="L404">            parser.getTrace().print(writer);</span>
+<span class="nc" id="L405">            writer.println();</span>
+<span class="nc" id="L406">            exception.printStackTrace(writer);</span>
+
+            // Since an error is being reported, the output color must be red.
+<span class="nc" id="L409">            output.getTextArea().setForeground(Color.RED);</span>
+
+            // Since an error is being reported, the GUI's &quot;Output&quot; tab must take the focus.
+<span class="nc" id="L412">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L413">        }</span>
+
+        private void reportUnexpectedException(final Throwable unexpected)
+        {
+            // Write the output that the user will see.
+<span class="nc" id="L418">            writer.println(&quot;Unfortunately, parsing failed due to an unexpected exception.&quot;);</span>
+<span class="nc" id="L419">            writer.println();</span>
+<span class="nc" id="L420">            unexpected.printStackTrace(writer);</span>
+
+            // Since an error is being reported, the output color must be red.
+<span class="nc" id="L423">            output.getTextArea().setForeground(Color.RED);</span>
+
+            // Since an error is being reported, the GUI's &quot;Output&quot; tab must take the focus.
+<span class="nc" id="L426">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L427">        }</span>
+    }
+
+    /**
+     * This method opens a project file and loads its contents into the GUI.
+     *
+     * &lt;p&gt;
+     * This method asks the user for the location of the project file using a dialog.
+     * &lt;/p&gt;
+     */
+    public static void openProject()
+    {
+        // Display the dialog to the user.
+<span class="nc" id="L440">        file_chooser.showOpenDialog(null);</span>
+
+        // Retrieve the file that the user selected.
+<span class="nc" id="L443">        final File file = file_chooser.getSelectedFile();</span>
+
+        try
+        {
+            // If the user did not select a file, then there is nothing else that can be done.
+            // Likewise, nothing else can be done, if the selected file does not exist.
+<span class="nc bnc" id="L449" title="All 4 branches missed.">            if (file == null || !file.exists())</span>
+            {
+<span class="nc" id="L451">                throw new RuntimeException(&quot;No openable file was selected.&quot;);</span>
+            }
+
+            // The project file is actually a .zip file.
+            // This list will contain the files inside the project .zip file.
+            List&lt;StringFile&gt; zip;
+
+            // This variable is used to determine whether the user really opened a project file.
+<span class="nc" id="L459">            boolean valid = false;</span>
+
+            // Read the project file.
+<span class="nc" id="L462">            zip = StringFile.readZipFile(file);</span>
+
+            // Only two of the files inside the .zip file will be loaded.
+            // Firstly, the &quot;Grammar.txt&quot; file must be loaded into the &quot;Grammar&quot; tab.
+            // Secondly, the &quot;Input.txt&quot; file must be loaded into the &quot;Input&quot; tab.
+<span class="nc bnc" id="L467" title="All 2 branches missed.">            for (StringFile stringFile : zip)</span>
+            {
+<span class="nc bnc" id="L469" title="All 2 branches missed.">                if (stringFile.getFilepath().equals(new File(&quot;Grammar.txt&quot;)))</span>
+                {
+<span class="nc" id="L471">                    valid = true;</span>
+<span class="nc" id="L472">                    grammar.getTextArea().setText(stringFile.getSourceCode());</span>
+<span class="nc" id="L473">                    saved_grammar = grammar.getTextArea().getText();</span>
+                }
+
+<span class="nc bnc" id="L476" title="All 2 branches missed.">                if (stringFile.getFilepath().equals(new File(&quot;Input.txt&quot;)))</span>
+                {
+<span class="nc" id="L478">                    valid = true;</span>
+<span class="nc" id="L479">                    input.getTextArea().setText(stringFile.getSourceCode());</span>
+<span class="nc" id="L480">                    saved_input = input.getTextArea().getText();</span>
+                }
+<span class="nc" id="L482">            }</span>
+
+            // If the user did not select a project file, report the error.
+<span class="nc bnc" id="L485" title="All 2 branches missed.">            if (!valid)</span>
+            {
+<span class="nc" id="L487">                throw new RuntimeException(&quot;The selected file is not a Snowflake project file.&quot;);</span>
+            }
+
+            // Save the path to the file in case the user wishes to save the file again later.
+<span class="nc" id="L491">            current_file = file;</span>
+        }
+<span class="nc" id="L493">        catch (Exception ex)</span>
+        {
+            // Display the error via the output tab.
+<span class="nc" id="L496">            output.getTextArea().setForeground(Color.RED);</span>
+<span class="nc" id="L497">            output.getTextArea().setText(ex.toString());</span>
+<span class="nc" id="L498">            output.getTextArea().setCaretPosition(0);</span>
+<span class="nc" id="L499">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L500">            return;</span>
+<span class="nc" id="L501">        }</span>
+
+        // Update the text displayed via the project-label.
+<span class="nc" id="L504">        refreshProjectLabel();</span>
+<span class="nc" id="L505">    }</span>
+
+    /**
+     * This method saves the contents of the GUI as a project file.
+     *
+     * &lt;p&gt;
+     * This method always asks the user for the location of the project file using a dialog.
+     * &lt;/p&gt;
+     */
+    public static void saveProjectAs()
+    {
+        // Display the dialog to the user.
+<span class="nc" id="L517">        file_chooser.showSaveDialog(null);</span>
+
+        // Retrieve the file selected by the user.
+<span class="nc" id="L520">        File file = file_chooser.getSelectedFile();</span>
+
+        // If the user is saving the project as a Snowflake project,
+        // then make sure the file has a .snow extension.
+<span class="nc bnc" id="L524" title="All 4 branches missed.">        if (file_chooser.getFileFilter() == file_filter &amp;&amp; !file.getPath().endsWith(&quot;.snow&quot;))</span>
+        {
+<span class="nc" id="L526">            file = new File(file.getPath() + &quot;.snow&quot;);</span>
+        }
+
+        // If the user did not select a file, then no action can be performed.
+<span class="nc bnc" id="L530" title="All 2 branches missed.">        if (file == null)</span>
+        {
+<span class="nc" id="L532">            return;</span>
+        }
+
+        // Perform the actual save operation.
+<span class="nc" id="L536">        saveProjectToFile(file);</span>
+<span class="nc" id="L537">    }</span>
+
+    /**
+     * This method saves the contents of the GUI as a project file.
+     *
+     * &lt;p&gt;
+     * This method may ask the user for the location of the project file using a dialog.
+     * This method will not use a dialog, if the user previous opened or saved the project.
+     * &lt;/p&gt;
+     */
+    public static void saveProject()
+    {
+<span class="nc bnc" id="L549" title="All 2 branches missed.">        if (current_file == null)</span>
+        {
+<span class="nc" id="L551">            saveProjectAs();</span>
+        }
+        else
+        {
+<span class="nc" id="L555">            saveProjectToFile(current_file);</span>
+        }
+<span class="nc" id="L557">    }</span>
+
+    /**
+     * This method tries to saves the content of the GUI to a project file.
+     *
+     * @param file is where to save the project file to.
+     */
+    private static void saveProjectToFile(final File file)
+    {
+        // Retrieve the content of the &quot;Grammar&quot; tab.
+<span class="nc" id="L567">        final StringFile grammar_file = new StringFile();</span>
+<span class="nc" id="L568">        grammar_file.setFilepath(new File(&quot;Grammar.txt&quot;));</span>
+<span class="nc" id="L569">        grammar_file.setSourceCode(grammar.getTextArea().getText());</span>
+
+        // Retrieve the content of the &quot;Input&quot; tab.
+<span class="nc" id="L572">        final StringFile input_file = new StringFile();</span>
+<span class="nc" id="L573">        input_file.setFilepath(new File(&quot;Input.txt&quot;));</span>
+<span class="nc" id="L574">        input_file.setSourceCode(input.getTextArea().getText());</span>
+
+        // Retrieve the content of the &quot;Generated Parser&quot; tab.
+<span class="nc" id="L577">        final StringFile parser_file = new StringFile();</span>
+<span class="nc" id="L578">        parser_file.setFilepath(new File(&quot;Parser.java&quot;));</span>
+<span class="nc" id="L579">        parser_file.setSourceCode(generated_parser.getTextArea().getText());</span>
+
+        // Retrieve the content of the &quot;Generated Visitor&quot; tab.
+<span class="nc" id="L582">        final StringFile visitor_file = new StringFile();</span>
+<span class="nc" id="L583">        visitor_file.setFilepath(new File(&quot;Visitor.java&quot;));</span>
+<span class="nc" id="L584">        visitor_file.setSourceCode(generated_visitor.getTextArea().getText());</span>
+
+        // Create a list of the files that will be placed into the .zip file.
+<span class="nc" id="L587">        final List&lt;StringFile&gt; files = Arrays.asList(grammar_file,</span>
+                                                     input_file,
+                                                     parser_file,
+                                                     visitor_file);
+
+        try
+        {
+            // Write the project file, which is really a .zip file.
+<span class="nc" id="L595">            StringFile.writeZipFile(file, files);</span>
+
+            // Save the path to the file in case the user wishes to save the file again later.
+<span class="nc" id="L598">            current_file = file;</span>
+
+<span class="nc" id="L600">            saved_grammar = grammar_file.getSourceCode();</span>
+<span class="nc" id="L601">            saved_input = input_file.getSourceCode();</span>
+        }
+<span class="nc" id="L603">        catch (Exception ex)</span>
+        {
+            // Display the error via the &quot;Output&quot; tab.
+<span class="nc" id="L606">            output.getTextArea().setForeground(Color.RED);</span>
+<span class="nc" id="L607">            output.getTextArea().setText(ex.toString());</span>
+<span class="nc" id="L608">            output.getTextArea().setCaretPosition(0);</span>
+<span class="nc" id="L609">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L610">        }</span>
+
+        // Update the text displayed via the project-label.
+<span class="nc" id="L613">        refreshProjectLabel();</span>
+<span class="nc" id="L614">    }</span>
+
+    /**
+     * This method implements the &quot;Parse&quot; action.
+     *
+     * &lt;p&gt;This method is synchronized to prevent multiple parsers from running simultaneously.&lt;/p&gt;
+     */
+    public static synchronized void parse()
+    {
+        // Do not allow multiple parsing threads to be running concurrently.
+<span class="nc bnc" id="L624" title="All 2 branches missed.">        if (parse_thread != null)</span>
+        {
+<span class="nc" id="L626">            return;</span>
+        }
+
+<span class="nc" id="L629">        Core.parse_thread = new Thread(new ParseRunner());</span>
+<span class="nc" id="L630">        Core.parse_thread.start();</span>
+<span class="nc" id="L631">    }</span>
+
+    /**
+     * This method implements the &quot;Generate Parser&quot; action.
+     */
+    public static void generateParser()
+    {
+        try
+        {
+<span class="nc" id="L640">            final StringWriter writer = new StringWriter();</span>
+
+<span class="nc" id="L642">            final PrintWriter stdout = new PrintWriter(writer);</span>
+
+<span class="nc" id="L644">            final ParserGenerator pg = ParserGenerator.forJava(stdout);</span>
+
+<span class="nc" id="L646">            pg.parseGrammar(grammar.getTextArea().getText());</span>
+
+<span class="nc" id="L648">            generated_parser.getTextArea().setText(pg.getParserFile());</span>
+<span class="nc" id="L649">            generated_parser.getTextArea().setCaretPosition(0);</span>
+
+<span class="nc" id="L651">            generated_visitor.getTextArea().setText(pg.getVisitorFile());</span>
+<span class="nc" id="L652">            generated_visitor.getTextArea().setCaretPosition(0);</span>
+
+<span class="nc" id="L654">            pg.exportFiles();</span>
+
+<span class="nc" id="L656">            output.getTextArea().setForeground(Color.BLACK);</span>
+<span class="nc" id="L657">            output.getTextArea().setText(&quot;Your parser and visitor were successfully generated.&quot;);</span>
+
+<span class="nc" id="L659">            tabs.setSelectedComponent(generated_parser);</span>
+        }
+<span class="nc" id="L661">        catch (RuntimeException ex)</span>
+        {
+            // Display the error via the &quot;Output&quot; tab.
+<span class="nc" id="L664">            output.getTextArea().setForeground(Color.RED);</span>
+<span class="nc" id="L665">            output.getTextArea().setText(ex.toString());</span>
+<span class="nc" id="L666">            output.getTextArea().setCaretPosition(0);</span>
+<span class="nc" id="L667">            tabs.setSelectedComponent(output);</span>
+<span class="nc" id="L668">        }</span>
+<span class="nc" id="L669">    }</span>
+
+    /**
+     * This method implements the &quot;Find and Replace&quot; action.
+     */
+    public static void findAndReplace()
+    {
+<span class="nc" id="L676">        Core.find_and_replace_dialog.setVisible(true);</span>
+<span class="nc" id="L677">    }</span>
+
+    /**
+     * This method implements the &quot;Exit&quot; action.
+     */
+    public static void exit()
+    {
+<span class="nc bnc" id="L684" title="All 2 branches missed.">        final boolean grammar_changed = !grammar.getTextArea().getText().equals(saved_grammar);</span>
+<span class="nc bnc" id="L685" title="All 2 branches missed.">        final boolean input_changed = !input.getTextArea().getText().equals(saved_input);</span>
+
+<span class="nc bnc" id="L687" title="All 4 branches missed.">        if (grammar_changed || input_changed)</span>
+        {
+<span class="nc" id="L689">            final int answer = JOptionPane.showOptionDialog(main,</span>
+                                                            &quot;Do you want to exit without saving?&quot;,
+                                                            &quot;Question&quot;,
+                                                            JOptionPane.YES_NO_OPTION,
+                                                            JOptionPane.QUESTION_MESSAGE,
+                                                            null,
+                                                            null,
+<span class="nc" id="L696">                                                            false);</span>
+
+<span class="nc bnc" id="L698" title="All 2 branches missed.">            if (answer != JOptionPane.YES_OPTION)</span>
+            {
+<span class="nc" id="L700">                return;</span>
+            }
+        }
+
+<span class="nc" id="L704">        System.out.println(&quot;exit&quot;);</span>
+<span class="nc" id="L705">        System.exit(0);</span>
+<span class="nc" id="L706">    }</span>
+
+    public static void showAboutDialog()
+    {
+<span class="nc" id="L710">        final HelpDialog dialog = new HelpDialog(main, true);</span>
+
+<span class="nc" id="L712">        dialog.setVisible(true);</span>
+<span class="nc" id="L713">    }</span>
+
+    public static void showFontDialog()
+    {
+<span class="nc" id="L717">        float size = Core.grammar.getTextArea().getFont().getSize();</span>
+
+<span class="nc" id="L719">        final String answer = JOptionPane.showInputDialog(main,</span>
+                                                          &quot;Font Size: &quot;,
+<span class="nc" id="L721">                                                          size);</span>
+
+<span class="nc bnc" id="L723" title="All 2 branches missed.">        if (answer == null)</span>
+        {
+<span class="nc" id="L725">            return;</span>
+        }
+
+<span class="nc" id="L728">        size = Float.parseFloat(answer);</span>
+
+<span class="nc" id="L730">        preferences.putFloat(FONT_SIZE_PREFERENCE, size);</span>
+
+<span class="nc" id="L732">        Core.updateFont();</span>
+<span class="nc" id="L733">    }</span>
+
+    public static void updateFont()
+    {
+<span class="nc" id="L737">        final float size = preferences.getFloat(FONT_SIZE_PREFERENCE, 12.0F);</span>
+
+<span class="nc" id="L739">        final Font old_font = grammar.getTextArea().getFont();</span>
+
+<span class="nc" id="L741">        final Font new_font = old_font.deriveFont(size);</span>
+
+<span class="nc" id="L743">        grammar.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L744">        input.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L745">        output.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L746">        parse_tree.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L747">        generated_parser.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L748">        generated_visitor.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L749">        license.getTextArea().setFont(new_font);</span>
+<span class="nc" id="L750">    }</span>
+
+    private static void refreshProjectLabel()
+    {
+<span class="nc bnc" id="L754" title="All 2 branches missed.">        String file = Core.current_file == null ? &quot;&lt;none&gt;&quot; : Core.current_file.getName();</span>
+
+<span class="nc" id="L756">        project_label.setText(&quot;Project: &quot; + file);</span>
+<span class="nc" id="L757">    }</span>
+
+    /**
+     * This method refreshes the line-number and column-number label, given a text-box.
+     *
+     * @param text is the text-box whose line and column numbers shall be displayed.
+     */
+    private static void refreshPosition(final JTextArea text)
+    {
+<span class="nc" id="L766">        final int position = text.getCaretPosition();</span>
+
+<span class="nc" id="L768">        final String txt = (text.getText() + &quot;$&quot;);</span>
+
+        // Determine the style of newline that is present in the input.
+<span class="nc" id="L771">        final NewlineStyles newline = NewlineStyles.fromGuess(txt, NewlineStyles.LF);</span>
+
+<span class="nc" id="L773">        final char[] chars = txt.toCharArray();</span>
+
+<span class="nc" id="L775">        final LinesAndColumns finder = new LinesAndColumns(chars, newline);</span>
+
+<span class="nc" id="L777">        final String line = &quot;Line: &quot; + zfill(5, finder.lineNumbers()[position]);</span>
+
+<span class="nc" id="L779">        final String column = &quot;Column: &quot; + zfill(5, finder.columnNumbers()[position]);</span>
+
+<span class="nc" id="L781">        line_number.setText(line);</span>
+
+<span class="nc" id="L783">        column_number.setText(column);</span>
+<span class="nc" id="L784">    }</span>
+
+    /**
+     * This method prefixes zeros onto the string representation of an integer,
+     * until the string reaches a given length.
+     *
+     * @param length is the length that the string must reach.
+     * @param data is the integer that will be converted to a string.
+     * @return the aforedescribed string with the zeros prepended.
+     */
+    private static String zfill(int length,
+                                int data)
+    {
+<span class="nc" id="L797">        String number = &quot;&quot; + data;</span>
+
+<span class="nc bnc" id="L799" title="All 2 branches missed.">        while (number.length() &lt; length)</span>
+        {
+<span class="nc" id="L801">            number = &quot;0&quot; + number;</span>
+        }
+
+<span class="nc" id="L804">        return number;</span>
+    }
+
+    /**
+     * This method creates a new listener that invokes the refresh method, whenever,
+     * a given text-box changes.
+     *
+     * @param textbox is the text-box that may change.
+     * @return the aforedescribed new listener.
+     */
+    private static CaretListener newRefreshListener(final JTextArea textbox)
+    {
+<span class="nc" id="L816">        return new CaretListener()</span>
+<span class="nc" id="L817">        {</span>
+            public void caretUpdate(CaretEvent e)
+            {
+<span class="nc" id="L820">                Core.refreshPosition(textbox);</span>
+<span class="nc" id="L821">            }</span>
+        };
+    }
+
+    /**
+     * This method implements the find-action of the &quot;Find and Replace&quot; dialog.
+     *
+     * @param text is the text to find.
+     */
+    public static void find(final String text)
+    {
+        // TODO
+<span class="nc" id="L833">        System.out.println(&quot;find&quot;);</span>
+<span class="nc" id="L834">    }</span>
+
+    /**
+     * This method implements the replace-action of the &quot;Find and Replace&quot; dialog.
+     *
+     * @param find is the text to find.
+     * @param replacement is the replacement for the found text.
+     */
+    public static void replace(final String find,
+                               final String replacement)
+    {
+        // TODO
+<span class="nc" id="L846">        System.out.println(&quot;replace&quot;);</span>
+<span class="nc" id="L847">    }</span>
+
+    /**
+     * This method closes the &quot;Find and Replace&quot; dialog.
+     */
+    public static void cancelFindAndReplace()
+    {
+<span class="nc" id="L854">        find_and_replace_dialog.setVisible(false);</span>
+<span class="nc" id="L855">    }</span>
+
+    /**
+     * This method is used to pass the main frame to the core class.
+     *
+     * @param main is the main frame of the application.
+     */
+    public static void setMain(final JFrame main)
+    {
+<span class="nc bnc" id="L864" title="All 2 branches missed.">        assert Core.main == null;</span>
+
+<span class="nc" id="L866">        Core.main = main;</span>
+<span class="nc" id="L867">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>State.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">State.java</span></div><h1>State.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake;
+
+/**
+ * An instance of this class stores the mutable state of a parser.
+ *
+ * @author Michael Mackenzie High
+ */
+final class State
+{
+    /**
+     * This object records the starts/successes/failures of match-attempts. 
+     */
+    public final Tracer tracer;
+
+    /**
+     * This is the input being parsed by the parser.
+     */
+    public final char[] input;
+
+    /**
+     * This is the current position of the parser.
+     *
+     * &lt;p&gt;
+     * The current position of the parser is the start position of the next match. 
+     * When a rule matches, the position of the parser moves forward (i.e. advances). 
+     * When the the parser backtracks, the position of the parser moves backward.
+     * Note, predicate rules do not cause the position to advance, even if they successfully match. 
+     * &lt;/p&gt;
+     */
+<span class="fc" id="L46">    public int position = 0;</span>
+
+    /**
+     * This is the farthest position that parsing has reached, thus far. 
+     */
+<span class="fc" id="L51">    public int farthest_position = 0;</span>
+    
+    /**
+     * Sole Constructor.
+     *
+     * @param input is to input to be parsed.
+     */
+    public State(final char[] input, final int trace_count)
+<span class="fc" id="L59">    {</span>
+<span class="fc" id="L60">        Utils.checkNonNull(input);</span>
+        
+<span class="fc" id="L62">        this.input = input;</span>
+        
+<span class="fc" id="L64">        this.tracer = new Tracer(trace_count);</span>
+<span class="fc" id="L65">    }</span>
+    
+    /**
+     * This method is called whenever a rule begins a match attempt. 
+     *
+     * @param rule is the rule itself.
+     * @return the current position of the parser. 
+     */
+    public int begin(final Rule rule)
+    {
+        // Record the start of a new match-attempt. 
+<span class="fc" id="L76">        this.tracer.add(rule, position, TraceElementReason.BEGIN);</span>
+        
+<span class="fc" id="L78">        return position;</span>
+    }
+
+    /**
+     * This method is called by a rule that has just successfully matched.
+     *
+     * @param rule is the rule itself.
+     */
+    public void succeed(final Rule rule)
+    {
+        // Record the success of a match-attempt. 
+<span class="fc" id="L89">        this.tracer.add(rule, position, TraceElementReason.SUCCESS);</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * This method is called by a rule that has just failed to match.
+     * 
+     * @param rule is the rule itself. 
+     * @param restore_position is the position in the parser's input to backtrack to. 
+     */
+    public void fail(final Rule rule, final int restore_position)
+    {   
+        // Record the failure of a match-attempt. 
+<span class="fc" id="L101">        this.tracer.add(rule, position, TraceElementReason.FAIL);</span>
+        
+        // Backtrack
+<span class="fc" id="L104">        this.position = restore_position;</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * This method returns the number of characters in the input that still can be consumed.
+     * 
+     * @return the number of characters in the input waiting to be parsed.
+     */
+<span class="fc" id="L112">    public int remaining() { return input.length - position; }</span>
+
+    /**
+     * This method returns the next character in the input and advances the position. 
+     * 
+     * @return the next character in the input.
+     * @throws IndexOutOfBoundsException if there is no input waiting to be consumed. 
+     */
+    public char next()
+    {
+        // The parser is moving forward.
+        // If this is the farthest position the parser has reached, record the location.
+        // This record will help the user find syntax-errors. 
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        this.farthest_position = position + 1 &gt; farthest_position </span>
+<span class="fc" id="L126">                               ? position : farthest_position;</span>
+        
+        // Return the next character from the parser's input and advance one positition forward. 
+<span class="fc" id="L129">        return input[position++];</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

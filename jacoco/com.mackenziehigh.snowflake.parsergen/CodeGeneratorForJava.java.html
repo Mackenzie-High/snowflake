@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CodeGeneratorForJava.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.parsergen</a> &gt; <span class="el_source">CodeGeneratorForJava.java</span></div><h1>CodeGeneratorForJava.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.mackenziehigh.snowflake.parsergen;
+
+import com.mackenziehigh.snowflake.Grammar;
+import com.mackenziehigh.snowflake.GrammarBuilder;
+import com.mackenziehigh.snowflake.IGrammarBuilder;
+import com.mackenziehigh.snowflake.IParser;
+import com.mackenziehigh.snowflake.ITreeNode;
+import com.mackenziehigh.snowflake.ITreeNodeVisitor;
+import com.mackenziehigh.snowflake.NewlineStyles;
+import com.mackenziehigh.snowflake.ParserOutput;
+import com.mackenziehigh.snowflake.Utils;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+/**
+ * An instance of this class generates Java source code for a parser-file and a visitor-file.
+ *
+ * @author Mackenzie High
+ */
+<span class="fc" id="L44">final class CodeGeneratorForJava</span>
+        implements ICodeGenerator
+{
+    /**
+     * This object builds a dynamic version of the grammar, while source-code is also generated.
+     */
+<span class="fc" id="L50">    private final GrammarBuilder grammar_builder = new GrammarBuilder();</span>
+
+    /**
+     * This is the name of the root grammar-rule.
+     */
+<span class="fc" id="L55">    private String root_name = null;</span>
+
+    /**
+     * This flag is true, iff the parser and visitor will have public-access.
+     */
+<span class="fc" id="L60">    private boolean hide = false;</span>
+
+    /**
+     * This is the name of the package that will contain the generated parser and visitor.
+     */
+<span class="fc" id="L65">    private String package_name = null;</span>
+
+    /**
+     * This is the name of the generated parser.
+     */
+<span class="fc" id="L70">    private String parser_name = null;</span>
+
+    /**
+     * This is the name of the generated visitor.
+     */
+<span class="fc" id="L75">    private String visitor_name = null;</span>
+
+    /**
+     * This is the number of trace-records the generated parser will store concurrently.
+     */
+<span class="fc" id="L80">    private int trace_count = 1024;</span>
+
+    /**
+     * These are the files to export the parser to.
+     */
+<span class="fc" id="L85">    private final List&lt;File&gt; parser_exports = new LinkedList&lt;File&gt;();</span>
+
+    /**
+     * These are the files to export the visitor to.
+     */
+<span class="fc" id="L90">    private final List&lt;File&gt; visitor_exports = new LinkedList&lt;File&gt;();</span>
+
+    /**
+     * This set stores the source-code of the statements that initialize character-classes.
+     */
+<span class="fc" id="L95">    private final Set&lt;String&gt; classes = new LinkedHashSet&lt;String&gt;();</span>
+
+    /**
+     * This set stores the source-code of the statements that initialize grammar-rules.
+     */
+<span class="fc" id="L100">    private final Set&lt;String&gt; grammar = new TreeSet&lt;String&gt;();</span>
+
+    /**
+     * This set stores the conditions needed to dispatch to visitation methods.
+     */
+<span class="fc" id="L105">    private final List&lt;String&gt; dispatch_table = new LinkedList&lt;String&gt;();</span>
+
+    /**
+     * This set stores the source-code of the visitation methods in the generated visitor.
+     */
+<span class="fc" id="L110">    private final Set&lt;String&gt; visitor_methods = new TreeSet&lt;String&gt;();</span>
+
+    private void addCharacterClass(final String code)
+    {
+<span class="fc" id="L114">        classes.add(&quot;    &quot; + &quot;    &quot; + code);</span>
+<span class="fc" id="L115">    }</span>
+
+    private void addGrammarRule(final String code)
+    {
+<span class="fc" id="L119">        grammar.add(&quot;    &quot; + &quot;    &quot; + code);</span>
+<span class="fc" id="L120">    }</span>
+
+    private void addVisitor(final String name)
+    {
+<span class="fc" id="L124">        this.addVisitorDispatchTableEntry(name);</span>
+<span class="fc" id="L125">        this.addVisitorMethod(name);</span>
+<span class="fc" id="L126">    }</span>
+
+    private void addVisitorMethod(final String name)
+    {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (name.contains(&quot;@&quot;))</span>
+        {
+<span class="fc" id="L132">            return;</span>
+        }
+
+<span class="fc" id="L135">        final StringBuilder visitor = new StringBuilder();</span>
+
+<span class="fc" id="L137">        visitor.append(&quot;    /**\n&quot;);</span>
+<span class="fc" id="L138">        visitor.append(&quot;     * This method visits a parse-tree node created by rule \&quot;&quot;).append(name).append(&quot;\&quot;.\n&quot;);</span>
+<span class="fc" id="L139">        visitor.append(&quot;     */\n&quot;);</span>
+<span class="fc" id="L140">        visitor.append(&quot;    protected void visit_&quot;).append(name).append(&quot;(ITreeNode node)\n&quot;);</span>
+<span class="fc" id="L141">        visitor.append(&quot;    {\n&quot;);</span>
+<span class="fc" id="L142">        visitor.append(&quot;        // You should *not* place your code right here. \n&quot;);</span>
+<span class="fc" id="L143">        visitor.append(&quot;        // Instead, you should override this method via a subclass.\n&quot;);</span>
+<span class="fc" id="L144">        visitor.append(&quot;        visitUnknown(node); // Default Behavior\n&quot;);</span>
+<span class="fc" id="L145">        visitor.append(&quot;    }\n\n&quot;);</span>
+
+<span class="fc" id="L147">        visitor_methods.add(visitor.toString());</span>
+<span class="fc" id="L148">    }</span>
+
+    private void addVisitorDispatchTableEntry(final String name)
+    {
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (name.contains(&quot;@&quot;))</span>
+        {
+<span class="fc" id="L154">            return;</span>
+        }
+
+<span class="fc" id="L157">        final String entry = &quot;if(\&quot;&quot; + name + &quot;\&quot;.equals(name)) { visit_&quot; + name + &quot;(node); }&quot;;</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (dispatch_table.isEmpty())</span>
+        {
+<span class="fc" id="L161">            dispatch_table.add(entry);</span>
+        }
+        else
+        {
+<span class="fc" id="L165">            dispatch_table.add(&quot;else &quot; + entry);</span>
+        }
+<span class="fc" id="L167">    }</span>
+
+    private String getVisitorDispatchTable()
+    {
+<span class="fc" id="L171">        final StringBuilder result = new StringBuilder();</span>
+
+<span class="fc" id="L173">        result.append(&quot;\n&quot;);</span>
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (String entry : dispatch_table)</span>
+        {
+<span class="fc" id="L177">            result.append(&quot;        &quot;).append(entry).append('\n');</span>
+<span class="fc" id="L178">        }</span>
+
+<span class="fc" id="L180">        result.append(&quot;        &quot;).append(&quot;else { visitUnknown(node); }\n&quot;);</span>
+
+<span class="fc" id="L182">        return result.toString();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Grammar build()
+    {
+<span class="fc" id="L191">        return grammar_builder.build();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getParserFile()
+    {
+<span class="fc" id="L200">        grammar_builder.build();</span>
+
+<span class="fc" id="L202">        final StringBuilder parser = new StringBuilder();</span>
+
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        final String access = hide ? &quot;&quot; : &quot;public &quot;;</span>
+
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        final String name_of_parser = parser_name == null ? &quot;PARSER_NAME&quot; : parser_name;</span>
+
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        final String name_of_root = root_name == null ? &quot;root&quot; : root_name;</span>
+
+        // Package Declaration
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (package_name != null)</span>
+        {
+<span class="fc" id="L213">            parser.append(&quot;package &quot;).append(package_name).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L214">            parser.append('\n');</span>
+        }
+
+        // Imports
+<span class="fc" id="L218">        parser.append(&quot;import &quot;).append(Grammar.class.getName()).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L219">        parser.append(&quot;import &quot;).append(GrammarBuilder.class.getName()).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L220">        parser.append(&quot;import &quot;).append(IParser.class.getName()).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L221">        parser.append(&quot;import &quot;).append(ParserOutput.class.getName()).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L222">        parser.append('\n');</span>
+<span class="fc" id="L223">        parser.append('\n');</span>
+
+        // Start of Class
+<span class="fc" id="L226">        parser.append(&quot;/**\n&quot;);</span>
+<span class="fc" id="L227">        parser.append(&quot; * This class was auto-generated using the Snowflake parser-generator.\n&quot;);</span>
+<span class="fc" id="L228">        parser.append(&quot; *\n&quot;);</span>
+<span class="fc" id="L229">        parser.append(&quot; * &lt;p&gt;Generated On: $&lt;/p&gt;\n&quot;.replace(&quot;$&quot;, (new Date()).toString()));</span>
+<span class="fc" id="L230">        parser.append(&quot; */\n&quot;);</span>
+<span class="fc" id="L231">        parser.append(access)</span>
+<span class="fc" id="L232">                .append(&quot;final class &quot;)</span>
+<span class="fc" id="L233">                .append(name_of_parser)</span>
+<span class="fc" id="L234">                .append(&quot; implements &quot;)</span>
+<span class="fc" id="L235">                .append(IParser.class.getSimpleName()).append(&quot;\n&quot;);</span>
+<span class="fc" id="L236">        parser.append(&quot;{\n&quot;);</span>
+<span class="fc" id="L237">        parser.append('\n');</span>
+
+        // Generate a field to store the grammar that is used by the parser.
+<span class="fc" id="L240">        parser.append(&quot;    private static final Grammar grammar = grammar();\n&quot;);</span>
+
+<span class="fc" id="L242">        parser.append('\n');</span>
+<span class="fc" id="L243">        parser.append('\n');</span>
+
+        // Generate the method that creates the grammar object used by the parser.
+<span class="fc" id="L246">        parser.append(&quot;    /**\n&quot;);</span>
+<span class="fc" id="L247">        parser.append(&quot;     * This method constructs the grammar object.\n&quot;);</span>
+<span class="fc" id="L248">        parser.append(&quot;     */\n&quot;);</span>
+<span class="fc" id="L249">        parser.append(&quot;    private static Grammar grammar()\n&quot;);</span>
+<span class="fc" id="L250">        parser.append(&quot;    {\n&quot;);</span>
+<span class="fc" id="L251">        parser.append(&quot;        final GrammarBuilder g = new GrammarBuilder();\n&quot;);</span>
+<span class="fc" id="L252">        parser.append('\n');</span>
+<span class="fc" id="L253">        parser.append(&quot;        // Character Classes\n&quot;);</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        for (String c : classes)</span>
+        {
+<span class="fc" id="L256">            parser.append(c).append(&quot;\n&quot;);</span>
+<span class="fc" id="L257">        }</span>
+<span class="fc" id="L258">        parser.append('\n');</span>
+<span class="fc" id="L259">        parser.append(&quot;        // Grammar Rules\n&quot;);</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        for (String r : grammar)</span>
+        {
+<span class="fc" id="L262">            parser.append(r).append(&quot;\n&quot;);</span>
+<span class="fc" id="L263">        }</span>
+<span class="fc" id="L264">        parser.append('\n');</span>
+<span class="fc" id="L265">        parser.append(&quot;        // Specify which rule is the root of the grammar.\n&quot;);</span>
+<span class="fc" id="L266">        parser.append(&quot;        g.setRoot(\&quot;&quot;).append(name_of_root).append(&quot;\&quot;);\n&quot;);</span>
+<span class="fc" id="L267">        parser.append('\n');</span>
+<span class="fc" id="L268">        parser.append(&quot;        // Specify the number of tracing records to store concurrently.\n&quot;);</span>
+<span class="fc" id="L269">        parser.append(&quot;        g.setTraceCount(&quot;).append(trace_count).append(&quot;);\n&quot;);</span>
+<span class="fc" id="L270">        parser.append('\n');</span>
+<span class="fc" id="L271">        parser.append(&quot;        // Perform the actual construction of the grammar object.\n&quot;);</span>
+<span class="fc" id="L272">        parser.append(&quot;        return g.build();\n&quot;);</span>
+<span class="fc" id="L273">        parser.append(&quot;    }\n&quot;);</span>
+<span class="fc" id="L274">        parser.append('\n');</span>
+<span class="fc" id="L275">        parser.append('\n');</span>
+
+        // Implement the parse(char[]) method.
+<span class="fc" id="L278">        parser.append(&quot;    /**\n&quot;);</span>
+<span class="fc" id="L279">        parser.append(&quot;     * {@inheritDoc}\n&quot;);</span>
+<span class="fc" id="L280">        parser.append(&quot;     */\n&quot;);</span>
+<span class="fc" id="L281">        parser.append(&quot;    @Override\n&quot;);</span>
+<span class="fc" id="L282">        parser.append(&quot;    public ParserOutput parse(final char[] input)\n&quot;);</span>
+<span class="fc" id="L283">        parser.append(&quot;    {\n&quot;);</span>
+<span class="fc" id="L284">        parser.append(&quot;        return grammar.newParser().parse(input);\n&quot;);</span>
+<span class="fc" id="L285">        parser.append(&quot;    }\n&quot;);</span>
+<span class="fc" id="L286">        parser.append('\n');</span>
+<span class="fc" id="L287">        parser.append('\n');</span>
+
+        // Implement the parse(String) method.
+<span class="fc" id="L290">        parser.append(&quot;    /**\n&quot;);</span>
+<span class="fc" id="L291">        parser.append(&quot;     * {@inheritDoc}\n&quot;);</span>
+<span class="fc" id="L292">        parser.append(&quot;     */\n&quot;);</span>
+<span class="fc" id="L293">        parser.append(&quot;    @Override\n&quot;);</span>
+<span class="fc" id="L294">        parser.append(&quot;    public ParserOutput parse(final String input)\n&quot;);</span>
+<span class="fc" id="L295">        parser.append(&quot;    {\n&quot;);</span>
+<span class="fc" id="L296">        parser.append(&quot;        return parse(input.toCharArray());\n&quot;);</span>
+<span class="fc" id="L297">        parser.append(&quot;    }\n&quot;);</span>
+
+        // End of Class
+<span class="fc" id="L300">        parser.append(&quot;}\n&quot;);</span>
+
+<span class="fc" id="L302">        final String result = parser.toString().replace(&quot;\n&quot;, NewlineStyles.fromSystem().newline());</span>
+
+<span class="fc" id="L304">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVisitorFile()
+    {
+<span class="fc" id="L313">        final StringBuilder visitor = new StringBuilder();</span>
+
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">        final String access = hide ? &quot;&quot; : &quot;public &quot;;</span>
+
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">        final String name_of_visitor = visitor_name == null ? &quot;VISITOR_NAME&quot; : visitor_name;</span>
+
+        // Package Declaration
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if (package_name != null)</span>
+        {
+<span class="fc" id="L322">            visitor.append(&quot;package &quot;).append(package_name).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L323">            visitor.append('\n');</span>
+        }
+
+        // Imports
+<span class="fc" id="L327">        visitor.append(&quot;import &quot;).append(ITreeNode.class.getName()).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L328">        visitor.append(&quot;import &quot;).append(ITreeNodeVisitor.class.getName()).append(&quot;;\n&quot;);</span>
+<span class="fc" id="L329">        visitor.append('\n');</span>
+<span class="fc" id="L330">        visitor.append('\n');</span>
+
+        // Start of Class
+<span class="fc" id="L333">        visitor.append(&quot;/**\n&quot;);</span>
+<span class="fc" id="L334">        visitor.append(&quot; * This class was auto-generated using the Snowflake parser-generator.\n&quot;);</span>
+<span class="fc" id="L335">        visitor.append(&quot; *\n&quot;);</span>
+<span class="fc" id="L336">        visitor.append(&quot; * &lt;p&gt;Generated On: $&lt;/p&gt;\n&quot;.replace(&quot;$&quot;, (new Date()).toString()));</span>
+<span class="fc" id="L337">        visitor.append(&quot; */\n&quot;);</span>
+<span class="fc" id="L338">        visitor.append(access)</span>
+<span class="fc" id="L339">                .append(&quot;abstract class &quot;)</span>
+<span class="fc" id="L340">                .append(name_of_visitor).append(&quot; implements &quot;)</span>
+<span class="fc" id="L341">                .append(ITreeNodeVisitor.class.getSimpleName()).append(&quot;\n&quot;);</span>
+<span class="fc" id="L342">        visitor.append(&quot;{\n&quot;);</span>
+<span class="fc" id="L343">        visitor.append(&quot;\n&quot;);</span>
+
+        // Implement the visit(ITreeNode) method.
+<span class="fc" id="L346">        visitor.append(&quot;    /**\n&quot;);</span>
+<span class="fc" id="L347">        visitor.append(&quot;     * {@inheritDoc}\n&quot;);</span>
+<span class="fc" id="L348">        visitor.append(&quot;     */\n&quot;);</span>
+<span class="fc" id="L349">        visitor.append(&quot;    @Override\n&quot;);</span>
+<span class="fc" id="L350">        visitor.append(&quot;    public void visit(ITreeNode node)\n&quot;);</span>
+<span class="fc" id="L351">        visitor.append(&quot;    {\n&quot;);</span>
+<span class="fc" id="L352">        visitor.append(&quot;        final String name = node.rule();\n&quot;);</span>
+<span class="fc" id="L353">        visitor.append(getVisitorDispatchTable());</span>
+<span class="fc" id="L354">        visitor.append(&quot;    }\n&quot;);</span>
+<span class="fc" id="L355">        visitor.append(&quot;\n&quot;);</span>
+
+        // Implement the visitUnknown(ITreeNode) method.
+<span class="fc" id="L358">        visitor.append(&quot;    /**\n&quot;);</span>
+<span class="fc" id="L359">        visitor.append(&quot;     * {@inheritDoc}\n&quot;);</span>
+<span class="fc" id="L360">        visitor.append(&quot;     */\n&quot;);</span>
+<span class="fc" id="L361">        visitor.append(&quot;    @Override\n&quot;);</span>
+<span class="fc" id="L362">        visitor.append(&quot;    public void visitUnknown(ITreeNode node)\n&quot;);</span>
+<span class="fc" id="L363">        visitor.append(&quot;    {\n&quot;);</span>
+<span class="fc" id="L364">        visitor.append(&quot;        // You should *not* place your code right here.\n&quot;);</span>
+<span class="fc" id="L365">        visitor.append(&quot;        // Instead, you should override this method via a subclass.\n&quot;);</span>
+<span class="fc" id="L366">        visitor.append(&quot;    }\n&quot;);</span>
+<span class="fc" id="L367">        visitor.append(&quot;\n&quot;);</span>
+
+        // Add the overridable visitation methods.
+<span class="fc bfc" id="L370" title="All 2 branches covered.">        for (String method : visitor_methods)</span>
+        {
+<span class="fc" id="L372">            visitor.append(method);</span>
+<span class="fc" id="L373">        }</span>
+
+        // End of Class
+<span class="fc" id="L376">        visitor.append(&quot;}\n&quot;);</span>
+
+<span class="fc" id="L378">        final String result = visitor.toString().replace(&quot;\n&quot;, NewlineStyles.fromSystem().newline());</span>
+
+<span class="fc" id="L380">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void exportFiles()
+    {
+<span class="nc" id="L388">        final String parser = getParserFile();</span>
+
+<span class="nc" id="L390">        exportFiles(parser_exports, parser);</span>
+
+<span class="nc" id="L392">        final String visitor = getVisitorFile();</span>
+
+<span class="nc" id="L394">        exportFiles(visitor_exports, visitor);</span>
+<span class="nc" id="L395">    }</span>
+
+    /**
+     * This method writes a specified string of text to a series of files.
+     *
+     * &lt;p&gt;
+     * Specifically, this method is used to export generated parsers and generated visitors.
+     * &lt;/p&gt;
+     *
+     * @param files are the files to write the text to.
+     * @param content is the text to write.
+     */
+    private void exportFiles(final List&lt;File&gt; files,
+                             final String content)
+    {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        for (File file : files)</span>
+        {
+            final FileOutputStream fos;
+            final BufferedOutputStream bos;
+<span class="nc" id="L414">            PrintStream pos = null;</span>
+
+            try
+            {
+<span class="nc" id="L418">                fos = new FileOutputStream(file);</span>
+<span class="nc" id="L419">                bos = new BufferedOutputStream(fos);</span>
+<span class="nc" id="L420">                pos = new PrintStream(bos);</span>
+
+<span class="nc" id="L422">                pos.print(content);</span>
+            }
+<span class="nc" id="L424">            catch (IOException ex)</span>
+            {
+<span class="nc" id="L426">                throw new RuntimeException(&quot;I could not export file: &quot; + file, ex);</span>
+            }
+            finally
+            {
+<span class="nc bnc" id="L430" title="All 2 branches missed.">                if (pos != null)</span>
+                {
+<span class="nc" id="L432">                    pos.close();</span>
+                }
+            }
+
+<span class="nc" id="L436">        }</span>
+<span class="nc" id="L437">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder and(String name,
+                               String target)
+    {
+<span class="fc" id="L446">        grammar_builder.and(name, target);</span>
+
+<span class="fc" id="L448">        addVisitor(name);</span>
+
+<span class="fc" id="L450">        addGrammarRule(&quot;g.and(\&quot;&quot; + name + &quot;\&quot;, \&quot;&quot; + target + &quot;\&quot;);&quot;);</span>
+
+<span class="fc" id="L452">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder not(String name,
+                               String target)
+    {
+<span class="fc" id="L462">        grammar_builder.not(name, target);</span>
+
+<span class="fc" id="L464">        addVisitor(name);</span>
+
+<span class="fc" id="L466">        addGrammarRule(&quot;g.not(\&quot;&quot; + name + &quot;\&quot;, \&quot;&quot; + target + &quot;\&quot;);&quot;);</span>
+
+<span class="fc" id="L468">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder sequence(String name,
+                                    String... elements)
+    {
+<span class="fc" id="L478">        grammar_builder.sequence(name, elements);</span>
+
+<span class="fc" id="L480">        addVisitor(name);</span>
+
+<span class="fc" id="L482">        final StringBuilder xoo = new StringBuilder();</span>
+
+<span class="fc" id="L484">        xoo.append(&quot;g.sequence(\&quot;&quot;).append(name).append(&quot;\&quot;&quot;);</span>
+
+<span class="fc bfc" id="L486" title="All 2 branches covered.">        for (String element : elements)</span>
+        {
+<span class="fc" id="L488">            xoo.append(&quot;, \&quot;&quot;).append(element).append(&quot;\&quot;&quot;);</span>
+        }
+
+<span class="fc" id="L491">        xoo.append(&quot;);&quot;);</span>
+
+<span class="fc" id="L493">        addGrammarRule(xoo.toString());</span>
+
+<span class="fc" id="L495">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder sequenceDLR(String name,
+                                       String base,
+                                       String... shared)
+    {
+<span class="fc" id="L506">        grammar_builder.sequenceDLR(name, base, shared);</span>
+
+<span class="fc" id="L508">        addVisitor(name);</span>
+
+<span class="fc" id="L510">        final StringBuilder xoo = new StringBuilder();</span>
+
+<span class="fc" id="L512">        xoo.append(&quot;g.sequenceDLR(\&quot;&quot;).append(name).append(&quot;\&quot;&quot;);</span>
+
+<span class="fc" id="L514">        xoo.append(&quot;, \&quot;&quot;).append(base).append(&quot;\&quot;&quot;);</span>
+
+<span class="fc bfc" id="L516" title="All 2 branches covered.">        for (String element : shared)</span>
+        {
+<span class="fc" id="L518">            xoo.append(&quot;, \&quot;&quot;).append(element).append(&quot;\&quot;&quot;);</span>
+        }
+
+<span class="fc" id="L521">        xoo.append(&quot;);&quot;);</span>
+
+<span class="fc" id="L523">        addGrammarRule(xoo.toString());</span>
+
+<span class="fc" id="L525">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder choose(String name,
+                                  String... options)
+    {
+<span class="fc" id="L535">        grammar_builder.choose(name, options);</span>
+
+<span class="fc" id="L537">        addVisitor(name);</span>
+
+<span class="fc" id="L539">        final StringBuilder xoo = new StringBuilder();</span>
+
+<span class="fc" id="L541">        xoo.append(&quot;g.choose(\&quot;&quot;).append(name).append(&quot;\&quot;&quot;);</span>
+
+<span class="fc bfc" id="L543" title="All 2 branches covered.">        for (String option : options)</span>
+        {
+<span class="fc" id="L545">            xoo.append(&quot;, \&quot;&quot;).append(option).append(&quot;\&quot;&quot;);</span>
+        }
+
+<span class="fc" id="L548">        xoo.append(&quot;);&quot;);</span>
+
+<span class="fc" id="L550">        addGrammarRule(xoo.toString());</span>
+
+<span class="fc" id="L552">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder repeat(String name,
+                                  String target,
+                                  int minimum,
+                                  int maximum)
+    {
+<span class="fc" id="L564">        grammar_builder.repeat(name, target, minimum, maximum);</span>
+
+<span class="fc" id="L566">        addVisitor(name);</span>
+
+<span class="fc" id="L568">        final StringBuilder xoo = new StringBuilder();</span>
+
+<span class="fc" id="L570">        xoo.append(&quot;g.repeat(&quot;)</span>
+<span class="fc" id="L571">                .append(&quot;\&quot;&quot;).append(name).append(&quot;\&quot;&quot;)</span>
+<span class="fc" id="L572">                .append(&quot;, &quot;)</span>
+<span class="fc" id="L573">                .append(&quot;\&quot;&quot;).append(target).append(&quot;\&quot;&quot;)</span>
+<span class="fc" id="L574">                .append(&quot;, &quot;)</span>
+<span class="fc" id="L575">                .append(minimum)</span>
+<span class="fc" id="L576">                .append(&quot;, &quot;)</span>
+<span class="fc" id="L577">                .append(maximum)</span>
+<span class="fc" id="L578">                .append(&quot;);&quot;);</span>
+
+<span class="fc" id="L580">        addGrammarRule(xoo.toString());</span>
+
+<span class="fc" id="L582">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder star(String name,
+                                String target)
+    {
+<span class="fc" id="L592">        return repeat(name, target, 0, Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder plus(String name,
+                                String target)
+    {
+<span class="fc" id="L602">        return repeat(name, target, 1, Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder option(String name,
+                                  String target)
+    {
+<span class="fc" id="L612">        return repeat(name, target, 0, 1);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder str(String name,
+                               String string)
+    {
+<span class="fc" id="L622">        grammar_builder.str(name, string);</span>
+
+<span class="fc" id="L624">        addVisitor(name);</span>
+
+<span class="fc" id="L626">        addGrammarRule(&quot;g.str(\&quot;&quot; + name + &quot;\&quot;, \&quot;&quot; + string + &quot;\&quot;);&quot;);</span>
+
+<span class="fc" id="L628">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder chr(String name,
+                               String clazz)
+    {
+<span class="fc" id="L638">        grammar_builder.chr(name, clazz);</span>
+
+<span class="fc" id="L640">        addVisitor(name);</span>
+
+<span class="fc" id="L642">        addGrammarRule(&quot;g.chr(\&quot;&quot; + name + &quot;\&quot;, \&quot;&quot; + clazz + &quot;\&quot;);&quot;);</span>
+
+<span class="fc" id="L644">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder range(String name,
+                                 char character)
+    {
+<span class="fc" id="L654">        return range(name, character, character);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder range(String name,
+                                 char minimum,
+                                 char maximum)
+    {
+<span class="fc" id="L665">        grammar_builder.range(name, minimum, maximum);</span>
+
+<span class="fc" id="L667">        addCharacterClass(&quot;g.range(\&quot;&quot; + name + &quot;\&quot;, &quot;</span>
+                          + &quot;(char) &quot; + (int) minimum + &quot;, &quot;
+                          + &quot;(char) &quot; + (int) maximum + &quot;);&quot;);
+
+<span class="fc" id="L671">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder combine(String name,
+                                   String... elements)
+    {
+<span class="fc" id="L681">        grammar_builder.combine(name, elements);</span>
+
+<span class="fc" id="L683">        final StringBuilder builder = new StringBuilder();</span>
+
+<span class="fc" id="L685">        builder.append(&quot;g.combine(&quot;);</span>
+
+<span class="fc" id="L687">        builder.append('&quot;').append(name).append('&quot;');</span>
+
+<span class="fc bfc" id="L689" title="All 2 branches covered.">        for (String element : elements)</span>
+        {
+<span class="fc" id="L691">            builder.append(&quot;, &quot;).append('&quot;').append(element).append('&quot;');</span>
+        }
+
+<span class="fc" id="L694">        builder.append(&quot;);&quot;);</span>
+
+<span class="fc" id="L696">        final String result = builder.toString().replace(&quot;(, &quot;, &quot;&quot;);</span>
+
+<span class="fc" id="L698">        addCharacterClass(result);</span>
+
+<span class="fc" id="L700">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder exclude(String name,
+                                   String include,
+                                   String exclude)
+    {
+<span class="fc" id="L711">        grammar_builder.exclude(name, include, exclude);</span>
+
+<span class="fc" id="L713">        final StringBuilder builder = new StringBuilder();</span>
+
+<span class="fc" id="L715">        builder.append(&quot;g.exclude(&quot;);</span>
+
+<span class="fc" id="L717">        builder.append('&quot;').append(name).append('&quot;');</span>
+
+<span class="fc" id="L719">        builder.append(&quot;, &quot;);</span>
+
+<span class="fc" id="L721">        builder.append('&quot;').append(include).append('&quot;');</span>
+
+<span class="fc" id="L723">        builder.append(&quot;, &quot;);</span>
+
+<span class="fc" id="L725">        builder.append('&quot;').append(exclude).append('&quot;');</span>
+
+<span class="fc" id="L727">        builder.append(&quot;);&quot;);</span>
+
+<span class="fc" id="L729">        addCharacterClass(builder.toString());</span>
+
+<span class="fc" id="L731">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder negate(String name,
+                                  String negates)
+    {
+<span class="fc" id="L741">        grammar_builder.negate(name, negates);</span>
+
+<span class="fc" id="L743">        final StringBuilder builder = new StringBuilder();</span>
+
+<span class="fc" id="L745">        builder.append(&quot;g.negate(&quot;);</span>
+
+<span class="fc" id="L747">        builder.append('&quot;').append(name).append('&quot;');</span>
+
+<span class="fc" id="L749">        builder.append(&quot;, &quot;);</span>
+
+<span class="fc" id="L751">        builder.append('&quot;').append(negates).append('&quot;');</span>
+
+<span class="fc" id="L753">        builder.append(&quot;);&quot;);</span>
+
+<span class="fc" id="L755">        addCharacterClass(builder.toString());</span>
+
+<span class="fc" id="L757">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ICodeGenerator setPackageName(String name)
+    {
+<span class="fc" id="L766">        Utils.checkNonNull(name);</span>
+
+<span class="fc bfc" id="L768" title="All 2 branches covered.">        if (package_name != null)</span>
+        {
+<span class="fc" id="L770">            throw new IllegalStateException(&quot;The package name was already specified.&quot;);</span>
+        }
+        else
+        {
+<span class="fc" id="L774">            this.package_name = name;</span>
+        }
+
+<span class="fc" id="L777">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ICodeGenerator setParserName(String name)
+    {
+<span class="fc" id="L786">        Utils.checkNonNull(name);</span>
+
+<span class="fc bfc" id="L788" title="All 2 branches covered.">        if (parser_name != null)</span>
+        {
+<span class="fc" id="L790">            throw new IllegalStateException(&quot;The parser name was already specified.&quot;);</span>
+        }
+        else
+        {
+<span class="fc" id="L794">            this.parser_name = name;</span>
+        }
+
+<span class="fc" id="L797">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ICodeGenerator setVisitorName(String name)
+    {
+<span class="fc" id="L806">        Utils.checkNonNull(name);</span>
+
+<span class="fc bfc" id="L808" title="All 2 branches covered.">        if (visitor_name != null)</span>
+        {
+<span class="fc" id="L810">            throw new IllegalStateException(&quot;The visitor name was already specified.&quot;);</span>
+        }
+        else
+        {
+<span class="fc" id="L814">            this.visitor_name = name;</span>
+        }
+
+<span class="fc" id="L817">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder setRoot(String name)
+    {
+<span class="fc" id="L826">        Utils.checkNonNull(name);</span>
+
+<span class="pc bpc" id="L828" title="1 of 2 branches missed.">        if (root_name != null)</span>
+        {
+<span class="nc" id="L830">            throw new IllegalStateException(&quot;The root rule was already specified.&quot;);</span>
+        }
+        else
+        {
+<span class="fc" id="L834">            this.grammar_builder.setRoot(name);</span>
+
+<span class="fc" id="L836">            this.root_name = name;</span>
+        }
+
+<span class="fc" id="L839">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder setTraceCount(int count)
+    {
+<span class="fc bfc" id="L848" title="All 2 branches covered.">        if (count &lt;= 0)</span>
+        {
+<span class="fc" id="L850">            throw new IllegalArgumentException(&quot;A negative trace-count was specified.&quot;);</span>
+        }
+        else
+        {
+<span class="fc" id="L854">            this.grammar_builder.setTraceCount(count);</span>
+
+<span class="fc" id="L856">            this.trace_count = count;</span>
+        }
+
+<span class="fc" id="L859">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ICodeGenerator hide()
+    {
+<span class="nc" id="L867">        this.hide = true;</span>
+
+<span class="nc" id="L869">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ICodeGenerator addExportParserFile(final File file)
+    {
+<span class="nc" id="L877">        this.parser_exports.add(file);</span>
+
+<span class="nc" id="L879">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ICodeGenerator addExportVisitorFile(final File file)
+    {
+<span class="nc" id="L887">        this.visitor_exports.add(file);</span>
+
+<span class="nc" id="L889">        return this;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

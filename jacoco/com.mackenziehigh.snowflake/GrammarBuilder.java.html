@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GrammarBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake</a> &gt; <span class="el_source">GrammarBuilder.java</span></div><h1>GrammarBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * This class provides a concrete grammar builder that can build grammars for immediate usage. 
+ * 
+ * @author Mackenzie High
+ */
+<span class="fc" id="L29">public final class GrammarBuilder implements IGrammarBuilder</span>
+{
+    
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder setRoot(String name)
+    {
+<span class="fc" id="L37">        Utils.checkNonNull(name);</span>
+        
+<span class="fc" id="L39">        this.root = name;</span>
+        
+<span class="fc" id="L41">        return this;</span>
+    }    
+
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder setTraceCount(final int count)
+    {
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if(count &lt; 0) { throw new IllegalArgumentException(); }</span>
+        
+<span class="fc" id="L51">        this.trace_count = count;</span>
+        
+<span class="fc" id="L53">        return this;</span>
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder and(String name, String item) 
+    {
+<span class="fc" id="L62">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L63">        Utils.checkNonNull(item);</span>
+        
+<span class="fc" id="L65">        final DesignRuleAnd design = new DesignRuleAnd();</span>
+<span class="fc" id="L66">        design.name = name;</span>
+<span class="fc" id="L67">        design.item = item;</span>
+        
+<span class="fc" id="L69">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L71">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder not(String name, String item) 
+    {
+<span class="fc" id="L80">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L81">        Utils.checkNonNull(item);</span>
+        
+<span class="fc" id="L83">        final DesignRuleNot design = new DesignRuleNot();</span>
+<span class="fc" id="L84">        design.name = name;</span>
+<span class="fc" id="L85">        design.item = item;</span>
+        
+<span class="fc" id="L87">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L89">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder sequence(String name, String... elements) 
+    {
+<span class="fc" id="L98">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L99">        Utils.checkNonNullArray(elements);</span>
+        
+<span class="fc" id="L101">        final DesignRuleSequence design = new DesignRuleSequence();</span>
+<span class="fc" id="L102">        design.name = name;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for(String element : elements) { design.elements.add(element); }</span>
+        
+<span class="fc" id="L105">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L107">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder sequenceDLR(String name, String base, String... shared)
+    {
+<span class="fc" id="L116">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L117">        Utils.checkNonNull(base);</span>
+<span class="fc" id="L118">        Utils.checkNonNullArray(shared);</span>
+        
+<span class="fc" id="L120">        final DesignRuleSequenceDLR design = new DesignRuleSequenceDLR();</span>
+<span class="fc" id="L121">        design.name = name;</span>
+<span class="fc" id="L122">        design.base = base;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for(String element : shared) { design.shared.add(element); }</span>
+        
+<span class="fc" id="L125">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L127">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder choose(String name, String... options) 
+    {
+<span class="fc" id="L136">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L137">        Utils.checkNonNullArray(options);</span>
+        
+<span class="fc" id="L139">        final DesignRuleChoice design = new DesignRuleChoice();</span>
+<span class="fc" id="L140">        design.name = name;</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        for(String option : options) { design.options.add(option); }</span>
+        
+<span class="fc" id="L143">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L145">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder repeat(String name, String item, int minimum, int maximum) 
+    {
+<span class="fc" id="L154">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L155">        Utils.checkNonNull(item);</span>
+        
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if(minimum &gt; maximum) { throw new IllegalArgumentException(&quot;minimum &gt; maximum&quot;); }</span>
+        
+<span class="fc" id="L159">        final DesignRuleRepetition design = new DesignRuleRepetition();</span>
+<span class="fc" id="L160">        design.name = name;</span>
+<span class="fc" id="L161">        design.item = item;</span>
+<span class="fc" id="L162">        design.minimum = minimum;</span>
+<span class="fc" id="L163">        design.maximum = maximum;</span>
+        
+<span class="fc" id="L165">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L167">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder star(String name, String item) 
+    {
+<span class="fc" id="L176">        return repeat(name, item, 0, Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder plus(String name, String item) 
+    {
+<span class="fc" id="L185">        return repeat(name, item, 1, Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder option(String name, String item) 
+    {
+<span class="fc" id="L194">        return repeat(name, item, 0, 1);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IGrammarBuilder str(String name, String string) 
+    {
+<span class="fc" id="L203">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L204">        Utils.checkNonNull(string);</span>
+        
+<span class="fc" id="L206">        final DesignRuleString design = new DesignRuleString();</span>
+<span class="fc" id="L207">        design.name = name;</span>
+<span class="fc" id="L208">        design.string = string;</span>
+        
+<span class="fc" id="L210">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L212">        return this;</span>
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder chr(String name, String character) 
+    {
+<span class="fc" id="L220">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L221">        Utils.checkNonNull(character);</span>
+        
+<span class="fc" id="L223">        final DesignRuleCharacter design = new DesignRuleCharacter();</span>
+<span class="fc" id="L224">        design.name = name;</span>
+<span class="fc" id="L225">        design.character = character;</span>
+        
+<span class="fc" id="L227">        this.grammar_rules.add(design);</span>
+        
+<span class="fc" id="L229">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder range(String name, char character) 
+    {
+<span class="fc" id="L237">        return range(name, character, character);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder range(String name, char minimum, char maximum) 
+    {
+<span class="fc" id="L245">        Utils.checkNonNull(name);</span>
+        
+<span class="fc" id="L247">        declareCC(name, new CharacterClassRange(minimum, maximum));</span>
+        
+<span class="fc" id="L249">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder combine(String name, String... classes) 
+    {
+<span class="fc" id="L257">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L258">        Utils.checkNonNull(classes);</span>
+        
+<span class="fc" id="L260">        final List&lt;ICharacterClass&gt; list = new LinkedList&lt;ICharacterClass&gt;();</span>
+        
+<span class="fc bfc" id="L262" title="All 2 branches covered.">        for(String x : classes) { list.add(findCC(x)); }</span>
+        
+<span class="fc" id="L264">        declareCC(name, new CharacterClassCombination(list.toArray(new ICharacterClass[0])));</span>
+
+<span class="fc" id="L266">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder exclude(String name, String include, String exclude) 
+    {
+<span class="fc" id="L274">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L275">        Utils.checkNonNull(include);</span>
+<span class="fc" id="L276">        Utils.checkNonNull(exclude);</span>
+        
+<span class="fc" id="L278">        declareCC(name, new CharacterClassExclusion(findCC(include), findCC(exclude)));</span>
+        
+<span class="fc" id="L280">        return this;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public IGrammarBuilder negate(String name, String negates) 
+    {
+<span class="fc" id="L288">        Utils.checkNonNull(name);</span>
+<span class="fc" id="L289">        Utils.checkNonNull(negates);</span>
+        
+<span class="fc" id="L291">        declareCC(name, new CharacterClassNegation(findCC(negates)));</span>
+        
+<span class="fc" id="L293">        return this;</span>
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * This method performs the actual construction of the new grammar and returns the result. 
+     * 
+     * &lt;p&gt;Each invocation of this method returns a new object.&lt;/p&gt;
+     * 
+     * @return the completed grammar. 
+     * @throws IllegalStateException if the grammar cannot be built. 
+     */
+    public Grammar build() 
+    {
+<span class="fc" id="L312">        final Map&lt;String, Rule&gt; rules = new TreeMap&lt;String, Rule&gt;();</span>
+        
+<span class="fc" id="L314">        rules.put(&quot;END&quot;, new RuleEnd());</span>
+        
+<span class="fc bfc" id="L316" title="All 2 branches covered.">        for(RuleDesign design : grammar_rules) { design.declare(rules); }     </span>
+        
+<span class="fc bfc" id="L318" title="All 2 branches covered.">        for(RuleDesign design : grammar_rules) { design.initialize(rules); }</span>
+        
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if(rules.containsKey(root) == false) </span>
+        { 
+<span class="fc" id="L322">            throw new IllegalStateException(&quot;The root grammar rule does not exist.&quot;);</span>
+        }
+        
+<span class="fc" id="L325">        final Grammar grammar = new Grammar(rules.get(root), trace_count);</span>
+        
+<span class="fc" id="L327">        return grammar;</span>
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * This is the name of the root grammar rule. 
+     */
+<span class="fc" id="L339">    private String root = &quot;&quot;;</span>
+    
+    /**
+     * These are the rules in the grammar being built. 
+     */
+<span class="fc" id="L344">    private final List&lt;RuleDesign&gt; grammar_rules = new LinkedList&lt;RuleDesign&gt;();</span>
+    
+    /**
+     * These are the character classes in the grammar being built. 
+     */
+<span class="fc" id="L349">    private final Map&lt;String, ICharacterClass&gt; classes = new TreeMap&lt;String, ICharacterClass&gt;();</span>
+    
+    /**
+     * This is the maximum number of backtrace records to store at any given moment. 
+     */
+<span class="fc" id="L354">    private int trace_count = 1024;</span>
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * This method adds a new rule object to a given map.
+     * 
+     * @param map maps the name of a rule to the rule itself. 
+     * @param rule is the rule to add to the map
+     * @throws IllegalStateException if the rule has the same name as a previously declared rule.
+     */
+    private static void declareRule(final Map&lt;String, Rule&gt; map, 
+                                    final Rule rule)
+    {
+<span class="fc bfc" id="L372" title="All 2 branches covered.">        if(map.containsKey(rule.name()))</span>
+        {
+<span class="fc" id="L374">            throw new IllegalStateException(&quot;Duplicate Rule: &quot; + rule.name());</span>
+        }
+        else
+        {
+<span class="fc" id="L378">            map.put(rule.name(), rule);</span>
+        }
+<span class="fc" id="L380">    }</span>
+    
+    /**
+     * This method retrieves a named rule from a given map.
+     * 
+     * @param map maps the name of a rule to the rule itself. 
+     * @param name is the name of the rule to return.
+     * @return the rule with the given name. 
+     * @throws IllegalStateException if there is no rule in the map with the given name. 
+     */
+    private static Rule findRule(final Map&lt;String, Rule&gt; map, 
+                                 final String name)
+    {
+<span class="fc bfc" id="L393" title="All 2 branches covered.">        if(map.containsKey(name))</span>
+        {
+<span class="fc" id="L395">            return map.get(name);</span>
+        }
+        else
+        {
+<span class="fc" id="L399">            throw new IllegalStateException(&quot;No Such Rule: &quot; + name);</span>
+        }
+    }
+    
+    /**
+     * This method retrieves zero or more named rules from a given map.
+     * 
+     * &lt;p&gt;The order of the returned array is the same as the list of names.&lt;/p&gt;
+     * 
+     * @param map maps the name of a rule to the rule itself. 
+     * @param names are the names of the rules to return. 
+     * @return an array containing the retrieved rules.
+     * @throws IllegalStateException if there is no rule in the map with one of the given names. 
+     */
+    private static Rule[] findRules(final Map&lt;String, Rule&gt; rules, 
+                                    final List&lt;String&gt; names)
+    {
+<span class="fc" id="L416">        final Rule[] array = new Rule[names.size()];</span>
+        
+<span class="fc" id="L418">        int i = 0;</span>
+<span class="fc bfc" id="L419" title="All 2 branches covered.">        for(String name : names) { array[i++] = findRule(rules, name); } </span>
+        
+<span class="fc" id="L421">        return array;</span>
+    }
+    
+    /**
+     * This method adds a new character-class to the grammar that is being built.
+     * 
+     * @param name is the name of the character-class.
+     * @param clazz is the character-class itself.
+     * @throws IllegalStateException if the character-class does not have a unique name. 
+     */
+    private void declareCC(final String name, final ICharacterClass clazz)
+    {
+<span class="fc bfc" id="L433" title="All 2 branches covered.">        if(classes.containsKey(name))</span>
+        {
+<span class="fc" id="L435">            throw new IllegalStateException(&quot;Duplicate Character-Class: &quot; + name);</span>
+        }
+        else
+        {
+<span class="fc" id="L439">            classes.put(name, clazz);</span>
+        }
+<span class="fc" id="L441">    }</span>
+    
+    /**
+     * This method retrieves a named character-class from a given map.
+     * 
+     * @param name is the name of the character-class to retrieve. 
+     * @return the desired character-class.
+     * @throws IllegalStateException if there is no character-class in the map with the given name. 
+     */
+    private ICharacterClass findCC(final String name)
+    {
+<span class="fc bfc" id="L452" title="All 2 branches covered.">        if(classes.containsKey(name))</span>
+        {
+<span class="fc" id="L454">            return classes.get(name);</span>
+        }
+        else
+        {
+<span class="fc" id="L458">            throw new IllegalStateException(&quot;No Such Character-Class: &quot; + name);</span>
+        }
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * An instance of this interface is the design of a grammar rule. 
+     */
+    private interface RuleDesign 
+    { 
+        /**
+         * This method adds this rule to a given map. 
+         * 
+         * @param rules maps the name of a rule to the rule itself. 
+         * @throws IllegalStateException if this rule shares its name with another rule.
+         */
+        public void declare(Map&lt;String, Rule&gt; rules);
+        
+        /**
+         * This method initializes the rule object that implements this grammar rule.
+         * 
+         * @param rules maps the name of a rule to the rule itself.
+         * @throws IllegalStateException if rule is needed that does not exist. 
+         */
+        public void initialize(Map&lt;String, Rule&gt; rules);
+    }
+    
+    /**
+     * An instance of this class is the design of an and-rule.
+     */
+<span class="fc" id="L493">    private final class DesignRuleAnd implements RuleDesign</span>
+    {
+        public String name;
+        
+        public String item;
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L501">           GrammarBuilder.declareRule(rules, new RuleAnd(name));</span>
+<span class="fc" id="L502">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules)
+        {
+<span class="fc" id="L506">            final RuleAnd rule = (RuleAnd) findRule(rules, name);</span>
+            
+<span class="fc" id="L508">            rule.item = findRule(rules, item);</span>
+<span class="fc" id="L509">        }</span>
+    }
+    
+    /**
+     * An instance of this class is the design of an not-rule.
+     */
+<span class="fc" id="L515">    private final class DesignRuleNot implements RuleDesign</span>
+    {
+        public String name;
+        
+        public String item;
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L523">            GrammarBuilder.declareRule(rules, new RuleNot(name));</span>
+<span class="fc" id="L524">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L528">            final RuleNot rule = (RuleNot) findRule(rules, name);</span>
+            
+<span class="fc" id="L530">            rule.item = findRule(rules, item);</span>
+<span class="fc" id="L531">        }</span>
+    }
+    
+    /**
+     * An instance of this class is the design of an sequence-rule.
+     */
+<span class="fc" id="L537">    private final class DesignRuleSequence implements RuleDesign</span>
+    {
+        public String name;
+        
+<span class="fc" id="L541">        public final List&lt;String&gt; elements = new LinkedList&lt;String&gt;();</span>
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L545">            GrammarBuilder.declareRule(rules, new RuleSequence(name));</span>
+<span class="fc" id="L546">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L550">            final RuleSequence rule = (RuleSequence) findRule(rules, name);</span>
+            
+<span class="fc" id="L552">            rule.elements = findRules(rules, elements);</span>
+<span class="fc" id="L553">        }</span>
+    }
+
+    /**
+     * An instance of this class is the design of an sequence-dlr-rule.
+     */
+<span class="fc" id="L559">    private final class DesignRuleSequenceDLR implements RuleDesign</span>
+    {
+        public String name;
+        
+        public String base;
+        
+<span class="fc" id="L565">        public final List&lt;String&gt; shared = new LinkedList&lt;String&gt;();</span>
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L569">            GrammarBuilder.declareRule(rules, new RuleSequenceDLR(name));</span>
+<span class="fc" id="L570">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L574">            final RuleSequenceDLR rule = (RuleSequenceDLR) findRule(rules, name);</span>
+            
+<span class="fc" id="L576">            final Rule base_rule = findRule(rules, base);</span>
+
+<span class="fc" id="L578">            rule.base_case = base_rule;</span>
+            
+<span class="fc" id="L580">            rule.shared.elements = findRules(rules, shared);</span>
+<span class="fc" id="L581">        }</span>
+    }
+    
+    /**
+     * An instance of this class is the design of a choice-rule.
+     */
+<span class="fc" id="L587">    private final class DesignRuleChoice implements RuleDesign</span>
+    {
+        public String name;
+        
+<span class="fc" id="L591">        public final List&lt;String&gt; options = new LinkedList&lt;String&gt;();</span>
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L595">            GrammarBuilder.declareRule(rules, new RuleChoice(name));</span>
+<span class="fc" id="L596">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L600">            final RuleChoice rule = (RuleChoice) findRule(rules, name);</span>
+            
+<span class="fc" id="L602">            rule.options = findRules(rules, options);</span>
+<span class="fc" id="L603">        }</span>
+    }
+    
+    /**
+     * An instance of this class is the design of a repetition-rule.
+     */
+<span class="fc" id="L609">    private final class DesignRuleRepetition implements RuleDesign</span>
+    {
+        public String name;
+        
+        public String item;
+        
+        public int minimum;
+        
+        public int maximum;
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L621">            GrammarBuilder.declareRule(rules, new RuleRepetition(name));</span>
+<span class="fc" id="L622">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L626">            final RuleRepetition rule = (RuleRepetition) findRule(rules, name);</span>
+            
+<span class="fc" id="L628">            rule.item = findRule(rules, item);</span>
+<span class="fc" id="L629">            rule.minimum = minimum;</span>
+<span class="fc" id="L630">            rule.maximum = maximum;</span>
+<span class="fc" id="L631">        }</span>
+    }    
+    
+    /**
+     * An instance of this class is the design of a string-rule.
+     */
+<span class="fc" id="L637">    private final class DesignRuleString implements RuleDesign</span>
+    {
+        public String name;
+        
+        public String string;
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L645">            GrammarBuilder.declareRule(rules, new RuleString(name));</span>
+<span class="fc" id="L646">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules)
+        {
+<span class="fc" id="L650">            final RuleString rule = (RuleString) findRule(rules, name);</span>
+            
+<span class="fc" id="L652">            rule.string = string.toCharArray();</span>
+<span class="fc" id="L653">        }</span>
+    }
+    
+    /**
+     * An instance of this class is the design of a character-rule.
+     */
+<span class="fc" id="L659">    private final class DesignRuleCharacter implements RuleDesign</span>
+    {
+        public String name;
+        
+        public String character;
+
+        public void declare(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L667">            GrammarBuilder.declareRule(rules, new RuleCharacter(name));</span>
+<span class="fc" id="L668">        }</span>
+
+        public void initialize(Map&lt;String, Rule&gt; rules) 
+        {
+<span class="fc" id="L672">            final RuleCharacter rule = (RuleCharacter) findRule(rules, name);</span>
+            
+<span class="fc" id="L674">            rule.character_class = findCC(character);</span>
+<span class="fc" id="L675">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

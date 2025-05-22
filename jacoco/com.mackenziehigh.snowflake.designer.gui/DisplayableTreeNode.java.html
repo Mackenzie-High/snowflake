@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DisplayableTreeNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.mackenziehigh:snowflake</a> &gt; <a href="index.source.html" class="el_package">com.mackenziehigh.snowflake.designer.gui</a> &gt; <span class="el_source">DisplayableTreeNode.java</span></div><h1>DisplayableTreeNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Michael Mackenzie High
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mackenziehigh.snowflake.designer.gui;
+
+import com.mackenziehigh.snowflake.ITreeNode;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import javax.swing.tree.TreeNode;
+
+/**
+ * This class facilitates the display of a parse-tree via a GUI.
+ * 
+ * @author Michael Mackenzie High
+ */
+public final class DisplayableTreeNode implements TreeNode 
+{
+    private final DisplayableTreeNode parent;
+    
+<span class="nc" id="L35">    private final List&lt;DisplayableTreeNode&gt; children = new LinkedList&lt;DisplayableTreeNode&gt;();</span>
+    
+    private final String ruleName;
+    
+    private final String matchText;
+    
+    public DisplayableTreeNode(final DisplayableTreeNode parent, 
+                               final ITreeNode node)
+<span class="nc" id="L43">    {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        for(ITreeNode child : node.children())</span>
+        {
+<span class="nc" id="L46">            this.children.add(new DisplayableTreeNode(this, child));</span>
+        }
+        
+<span class="nc" id="L49">        this.parent = parent;</span>
+        
+<span class="nc" id="L51">        this.ruleName = node.rule();</span>
+        
+<span class="nc" id="L53">        this.matchText = node.text();</span>
+<span class="nc" id="L54">    }</span>
+    
+    public DisplayableTreeNode getChildAt(int childIndex)
+    {
+<span class="nc" id="L58">        return children.get(childIndex);</span>
+    }
+
+    @Override
+    public DisplayableTreeNode getParent()
+    {
+<span class="nc" id="L64">        return parent;</span>
+    }
+
+    public int getIndex(TreeNode node)
+    {
+<span class="nc" id="L69">        int index = 0;</span>
+
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for(Object child : children)</span>
+        {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if(child.equals(node)) { return index; } else { ++index; }</span>
+<span class="nc" id="L74">        }</span>
+
+<span class="nc" id="L76">        return -1;</span>
+    }
+
+    public boolean getAllowsChildren()
+    {
+<span class="nc" id="L81">        return true;</span>
+    }
+
+    public boolean isLeaf()
+    {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        return getChildCount() == 0;</span>
+    }
+
+    public Enumeration children()
+    {
+<span class="nc" id="L91">        return new ChildrenEnumeration(children.iterator());</span>
+    }
+
+    public int getChildCount()
+    {
+<span class="nc" id="L96">        return children.size();</span>
+    }   
+    
+    public String getRuleName()
+    {
+<span class="nc" id="L101">        return ruleName;</span>
+    }
+    
+    public String getMatchText()
+    {
+<span class="nc" id="L106">        return matchText;</span>
+    }
+    
+    @Override
+    public String toString()
+    {
+<span class="nc" id="L112">        return ruleName;</span>
+    }
+
+    private static class ChildrenEnumeration implements Enumeration
+    {
+        private final Iterator iter;
+
+        public ChildrenEnumeration(Iterator i)
+<span class="nc" id="L120">        {</span>
+<span class="nc" id="L121">            iter = i;</span>
+<span class="nc" id="L122">        }</span>
+
+        public boolean hasMoreElements()
+        {
+<span class="nc" id="L126">            return iter.hasNext();</span>
+        }
+
+        public Object nextElement()
+        {
+<span class="nc" id="L131">            return iter.next();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
