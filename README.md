@@ -1,7 +1,8 @@
-Snowflake lets you interactively create recursive-descent parsers via a GUI.
+Snowflake lets you interactively create [PEG](https://en.wikipedia.org/wiki/Parsing_expression_grammar)-based recursive-descent parsers via a GUI.
 
 **Quick Links:**
 + [Grammar Cheat Sheet](examples/CheatSheet.md)
++ [Parser Library JavaDoc](https://www.mackenziehigh.com/snowflake/other/javadoc/snowflake-library/index.html)
 
 **Maven Dependency:**
 
@@ -62,6 +63,10 @@ Click on nodes to see the portion of text corresponding to that node.
 
 [window4]: https://www.mackenziehigh.com/snowflake/v2_0/intro/Window_4.png
 
+## Introduction to Parsing using PEGs
+
+[Parsing Expression Grammars: An Example Driven Introduction](https://www.mackenziehigh.com/snowflake/v2_0/Grammars.pdf) is a powerpoint presentation that will introduce you to parsing using Parsing Expression Grammars.
+
 ## Example Grammars
 
 These grammar files can be opened using the grammar editor via `File -> Open Project`.
@@ -77,3 +82,10 @@ These projects include executable example programs that utilize Snowflake for pa
 + [Simple Phone Book](examples/phonebook-example/)
 + [Prefix Notation Calculator](examples/prefix-calculator-example)
 + [Infix Notation Calculator](examples/infix-calculator-example)
+
+## External Resources
+
++ [Wikipedia: Parsing Expression Grammars](https://en.wikipedia.org/wiki/Parsing_expression_grammar)
++ [The Packrat Parsing and Parsing Expression Grammars Page](https://bford.info/packrat/)
++ [The Grammar of Snowflake Grammars](snowflake/src/main/java/com/mackenziehigh/snowflake/parsergen/GrammarOfGrammars.txt)
+
