@@ -16,6 +16,12 @@
 
 **Step (optional): Generate the [Parser.java](src/main/java/example/Parser.java) and [AbstractVisitor.java](src/main/java/example/AbstractVisitor.java) classes.**
 
++ Open the `phonebook.snow` file using the Snowflake GUI.
++ Edit the grammar, if desired.
++ Click `Action -> Generate Parser`
++ The updated `Parser.java` is on the `Parser` tab of the GUI.
++ The updated `AbstractVisitor.java` is on the `Visitor` tab of the GUI.
+
 **Step: Compile the project using Maven.**
 
 ```plain
