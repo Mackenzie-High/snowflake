@@ -3,18 +3,6 @@ Snowflake lets you interactively create recursive-descent parsers via a GUI.
 **Quick Links:**
 + [Grammar Cheat Sheet](examples/CheatSheet.md)
 
-## Hello World
-
-**Step: Download GUI from Maven Central:** 
-
-[Click Here](https://repo.maven.apache.org/maven2/com/mackenziehigh/snowflake/2.0/snowflake-2.0.jar) to download the Snowflake GUI JAR file.
-
-**Step: Run the GUI**
-
-```bash
-java -cp snowflake-2.0.jar com.mackenziehigh.snowflake.designer.gui.MainWindow
-```
-
 **Maven Dependency:**
 
 ```xml
